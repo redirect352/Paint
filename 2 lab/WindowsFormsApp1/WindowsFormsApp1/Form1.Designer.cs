@@ -99,12 +99,15 @@
             // RigthPolygon
             // 
             this.RigthPolygon.AutoSize = true;
+            this.RigthPolygon.Checked = true;
+            this.RigthPolygon.CheckState = System.Windows.Forms.CheckState.Checked;
             this.RigthPolygon.Location = new System.Drawing.Point(879, 39);
             this.RigthPolygon.Name = "RigthPolygon";
             this.RigthPolygon.Size = new System.Drawing.Size(90, 17);
             this.RigthPolygon.TabIndex = 4;
             this.RigthPolygon.Text = "Правильный";
             this.RigthPolygon.UseVisualStyleBackColor = true;
+            this.RigthPolygon.CheckedChanged += new System.EventHandler(this.RigthPolygon_CheckedChanged);
             // 
             // TopsLabel
             // 

@@ -151,6 +151,9 @@ namespace WindowsFormsApp1
         {
             if (CurrentFig is RigthPolygon)
                 (CurrentFig as RigthPolygon).TopAmount = (int)numericUpDown1.Value;
+            if (CurrentFig is Polygon)
+                (CurrentFig as Polygon).TopAmount = (int)numericUpDown1.Value;
+
         }
 
         private void PenColorButton_Click(object sender, EventArgs e)
@@ -171,6 +174,15 @@ namespace WindowsFormsApp1
 
 
             }
+        }
+
+        private void RigthPolygon_CheckedChanged(object sender, EventArgs e)
+        {
+            if (RigthPolygon.Checked)          
+                CurrentFig = new RigthPolygon(-1, -1, gr, p, FillColorPanel.BackColor);       
+            else
+                CurrentFig = new Polygon(-1, -1, gr, p, FillColorPanel.BackColor);
+
         }
 
         private void PreDrawTimer_Tick(object sender, EventArgs e)
@@ -255,10 +267,7 @@ namespace WindowsFormsApp1
 
         public override Point EndPoint
         {
-            get
-            {
-                return endPoint;
-            }
+            get => base.StartPoint;
             set
             {
                 endPoint = value;
@@ -279,10 +288,7 @@ namespace WindowsFormsApp1
 
         public override Point EndPoint
         {
-            get
-            {
-                return endPoint;
-            }
+            get => base.StartPoint;
             set
             {
                 endPoint = value;
@@ -306,10 +312,7 @@ namespace WindowsFormsApp1
 
         public override Point EndPoint
         {
-            get
-            {
-                return endPoint;
-            }
+            get => base.StartPoint;
             set
             {
                 endPoint = value;
@@ -336,10 +339,7 @@ namespace WindowsFormsApp1
 
         public override Point EndPoint
         {
-            get
-            {
-                return endPoint;
-            }
+            get => base.StartPoint;
             set
             {
                 endPoint = value;
@@ -372,6 +372,74 @@ namespace WindowsFormsApp1
             }
         }
     }
+
+    public class Polygon : Figure
+    {
+        public Polygon(int x0, int y0, Graphics gr, Pen p, Color Fc) : base(x0, y0, gr, p, Fc) { }
+        private int topAmount = 3;
+        private Point[] points = new Point[3] ;
+        private int n = 0;
+
+        public int TopAmount 
+        {
+            get
+            {
+                return topAmount;
+            }
+            set
+            {
+                topAmount = value;
+                points = new Point[topAmount];
+
+            }
+            
+        }
+
+        
+        
+
+        public override Point EndPoint
+        {
+            get => base.StartPoint;
+            set
+            {
+
+
+                endPoint = value;
+
+                if ( n < (TopAmount - 1) )
+                {
+
+                    points[n] = value;
+                    if (n > 0)
+                    {
+                        DrawPanel.DrawLine(DrPen, points[n - 1], points[n]);
+                    }
+
+                    n++;
+
+                }
+                else
+                {
+                    points[n] = value;
+                    n = 0;
+
+                    var br = new SolidBrush(FillColor);
+                    DrawPanel.DrawPolygon(DrPen, points);
+                    DrawPanel.FillPolygon(br, points);
+
+                    br.Dispose();
+                }
+
+
+                
+
+            }
+        }
+
+
+    }
+
 
     public class BrokenLine: Figure
     {
