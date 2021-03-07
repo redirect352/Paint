@@ -16,7 +16,7 @@ namespace WindowsFormsApp1
         Graphics gr;
         Pen p;
         Figure CurrentFig;
-        Bitmap p1= new Bitmap(1000,1000), p2;
+        Bitmap p1= new Bitmap(1000,1000), p2 = new Bitmap(1000, 1000);
 
         List<Figure> figures = new List<Figure>();
 
@@ -41,6 +41,8 @@ namespace WindowsFormsApp1
 
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
+
+
             CurrentFig.StartPoint = new Point(e.X, e.Y);
             PreDrawTimer.Enabled = true;
 
@@ -53,9 +55,10 @@ namespace WindowsFormsApp1
 
             if (!PreDrawTimer.Enabled)
             {
+                p2.Dispose();
 
-
-                p2 = new Bitmap(p1);
+                p2 = (Bitmap)p1.Clone();
+                
                 pictureBox1.Image = p2;
                 gr = Graphics.FromImage(p2);
                 CurrentFig.DrawPanel = gr;
@@ -82,8 +85,15 @@ namespace WindowsFormsApp1
                 gr = Graphics.FromImage(p1);
                 CurrentFig.DrawPanel = gr;
                 CurrentFig.EndPoint = new Point(e.X, e.Y);
-                CurrentFig.StartPoint = new Point(-1,-1);
+                CurrentFig.StartPoint = new Point(-2,-2);
+                
                 pictureBox1.Image = p1;
+
+                if ((e.Button == MouseButtons.Right) && (CurrentFig is BrokenLine))
+                {
+                    CurrentFig = new BrokenLine(-1, -1, gr, p, FillColorPanel.BackColor);
+                    return;
+                }
             }
             catch { }
         }
@@ -101,6 +111,9 @@ namespace WindowsFormsApp1
             RigthPolygon.Visible = false;
             numericUpDown1.Visible = false;
             TopsLabel.Visible = false;
+
+            pictureBox1.MouseDown -= panel1_MouseDown;
+            pictureBox1.MouseDown += panel1_MouseDown;
 
             switch (comboBox1.SelectedIndex)
             {
@@ -121,6 +134,10 @@ namespace WindowsFormsApp1
                     numericUpDown1.Visible = true;
                     TopsLabel.Visible = true;
                     CurrentFig = new RigthPolygon(-1, -1, gr, p, FillColorPanel.BackColor);
+                    break;
+                case 4:
+                    pictureBox1.MouseDown -= panel1_MouseDown;
+                    CurrentFig = new BrokenLine (-1, -1, gr, p, FillColorPanel.BackColor);
                     break;
             }
         }
@@ -150,7 +167,9 @@ namespace WindowsFormsApp1
             if (colorDialog1.ShowDialog() == DialogResult.OK)
             {
                 FillColorPanel.BackColor = colorDialog1.Color;
-                
+                CurrentFig.FillColor = colorDialog1.Color;
+
+
             }
         }
 
@@ -183,7 +202,7 @@ namespace WindowsFormsApp1
             FillColor = Fc;
         }
 
-        public Point StartPoint
+        public virtual Point StartPoint
         {
             get
             {
@@ -270,7 +289,10 @@ namespace WindowsFormsApp1
                 Point p1 = new Point(startPoint.X, startPoint.Y);
 
                 FindLeftTopPoint(ref startPoint, ref endPoint);
+
+                var br = new SolidBrush(FillColor);
                 DrawPanel.DrawRectangle(DrPen, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
+                DrawPanel.FillRectangle(br, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
                 startPoint = p1;
             }
         }
@@ -293,9 +315,13 @@ namespace WindowsFormsApp1
                 endPoint = value;
                 Point p1 = new Point(startPoint.X, startPoint.Y);
                 FindLeftTopPoint(ref startPoint, ref endPoint);
-                DrawPanel.DrawEllipse(DrPen, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
 
+
+                var br = new SolidBrush(FillColor);
+                DrawPanel.DrawEllipse(DrPen, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
+                DrawPanel.FillEllipse(br, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
                 startPoint = p1;
+                br.Dispose();
             }
         }
 
@@ -322,21 +348,66 @@ namespace WindowsFormsApp1
 
                 var center = new PointF(StartPoint.X + r, startPoint.Y + r);
                 
-                double angle = Math.PI * 2 / TopAmount;
+                double angle = Math.PI * 2 / TopAmount, shiftAngle = Math.PI* (endPoint.X - startPoint.X) / (endPoint.Y - startPoint.Y);
+
+
+
                 Point[] points = new Point[TopAmount];
                 for (int i = 0; i < TopAmount; i++)
                 {
-                    x1 = (int)(center.X + Math.Cos(i * angle + Math.PI/3) * r);
-                    y1 = (int)(center.Y + Math.Sin(i * angle+ Math.PI / 3) * r);
+                    x1 = (int)(center.X + Math.Cos(i * angle + shiftAngle) * r);
+                    y1 = (int)(center.Y + Math.Sin(i * angle+ shiftAngle) * r);
                     points[i].X = x1;
                     points[i].Y = y1;
 
                 }
-                DrawPanel.DrawPolygon(DrPen,points);
 
+                var br = new SolidBrush(FillColor);
+               
+                DrawPanel.DrawPolygon(DrPen,points);
+                DrawPanel.FillPolygon(br, points);
+
+                br.Dispose();
 
             }
         }
     }
 
+    public class BrokenLine: Figure
+    {
+        public BrokenLine(int x0, int y0, Graphics gr, Pen p, Color Fc) : base(x0, y0, gr, p, Fc) { }
+
+        public override Point StartPoint
+        {
+            get => base.StartPoint ;
+
+            set
+            {
+                startPoint = value;
+                if (value.X == -2)
+                {
+                    startPoint = new Point(endPoint.X, endPoint.Y);
+                }
+
+            }
+
+        }
+
+        public override Point EndPoint
+        {
+            get
+            {
+                return endPoint;
+            }
+            set
+            {
+                
+                endPoint = value;
+                if (startPoint.X>0) 
+                 DrawPanel.DrawLine(DrPen, startPoint, endPoint);
+
+            }
+        }
+
+    }
 }

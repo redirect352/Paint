@@ -65,7 +65,8 @@
             "Линия",
             "Прямоугольник",
             "Эллипс",
-            "Многоугольник"});
+            "Многоугольник",
+            "Ломанная"});
             this.comboBox1.Location = new System.Drawing.Point(844, 12);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(125, 21);
