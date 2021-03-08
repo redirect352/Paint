@@ -46,6 +46,9 @@ namespace WindowsFormsApp1
 
             CurrentFigure.StartPoint = new Point(e.X, e.Y);
             PreDrawTimer.Enabled = true;
+
+
+
             FpsCounter = 0;
             timer1.Enabled = true;
 
@@ -69,12 +72,12 @@ namespace WindowsFormsApp1
                 CurrentFigure.DrawPanel = gr;
 
 
-                CurrentFigure.EndPoint = e.Location;
+                CurrentFigure.PreDrawEndPoint = e.Location;
                 gr.Dispose();
                 PreDrawTimer.Enabled = true;
                
                
-                gr.Dispose();
+                
             }
 
 
@@ -85,6 +88,7 @@ namespace WindowsFormsApp1
 
             timer1.Enabled = false;
             PreDrawTimer.Enabled = false;
+
             try
             {
 
@@ -121,8 +125,6 @@ namespace WindowsFormsApp1
             TopsLabel.Visible = false;
             label2.Visible = false;
 
-            pictureBox1.MouseDown -= panel1_MouseDown;
-            pictureBox1.MouseDown += panel1_MouseDown;
 
             switch (comboBox1.SelectedIndex)
             {
@@ -146,7 +148,7 @@ namespace WindowsFormsApp1
                     
                     break;
                 case 4:
-                    pictureBox1.MouseDown -= panel1_MouseDown;
+                   
                     CurrentFigure = new BrokenLine (-1, -1, gr, pen, FillColorPanel.BackColor);
                     label2.Text = "Чтобы завершить рисование ломанной, нажмите на ПКМ";
                     label2.Visible = true;

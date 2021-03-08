@@ -38,6 +38,20 @@ namespace WindowsFormsApp1
             }
         }
 
+        public virtual Point PreDrawEndPoint
+        {
+            get
+            {
+                return endPoint;
+            }
+            set
+            {
+                EndPoint= value;
+
+            }
+
+        }
+
         public virtual Point EndPoint
         {
             get
@@ -171,7 +185,34 @@ namespace WindowsFormsApp1
 
         }
 
+        public override Point StartPoint
+        {
+            get => base.StartPoint;
+            set
+            {
+                startPoint = value;
+                if ( (n == 0) && (value.X >0))
+                {
 
+                    points[n] = value;
+                    n++;
+                }
+
+            }
+
+        
+        }
+
+        public override Point PreDrawEndPoint
+        {
+            get => base.PreDrawEndPoint;
+            set
+            {
+                points[n] = value;
+                DrawPanel.DrawLine(DrPen, points[n - 1], points[n]);
+               
+            }
+        }
 
 
         public override Point EndPoint
@@ -226,6 +267,34 @@ namespace WindowsFormsApp1
         public RigthPolygon(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
 
+
+        public override Point StartPoint
+        {
+            get
+            {
+                return startPoint;
+            }
+            set
+            {
+                startPoint = value;
+
+            }
+        }
+
+        public override Point PreDrawEndPoint
+        {
+            get
+            {
+                return endPoint;
+            }
+            set
+            {
+                EndPoint = value;
+
+            }
+
+        }
+
         public override Point EndPoint
         {
             get => base.EndPoint;
@@ -263,6 +332,12 @@ namespace WindowsFormsApp1
     {
         public BrokenLine(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
+        private const int PointArraySize = 10;
+
+        private Point[] points = new Point[PointArraySize];
+        private int n = 0;
+
+
         public override Point StartPoint
         {
             get => base.StartPoint;
@@ -270,14 +345,25 @@ namespace WindowsFormsApp1
             set
             {
                 startPoint = value;
-                if (value.X == -2)
+                if (n == 0)
                 {
-                    startPoint = new Point(endPoint.X, endPoint.Y);
+                    points[n] = value;
+                    n++;
                 }
-
             }
 
         }
+
+        public override Point PreDrawEndPoint
+        {
+            get => base.PreDrawEndPoint;
+            set
+            {
+                points[n] = value;
+                DrawPanel.DrawLine(DrPen, points[n - 1], points[n]);
+            }
+        }
+
 
         public override Point EndPoint
         {
@@ -287,10 +373,26 @@ namespace WindowsFormsApp1
             }
             set
             {
+                points[n] = value;
+                if ( n > 0)
+                {
+                    DrawPanel.DrawLine(DrPen,points[n-1], points[n]);
 
+                }
+                n++;
+
+
+                if ( n >= PointArraySize)
+                {
+                    points[0] = points[PointArraySize - 1];
+                    n = 1;
+
+                }
+
+                /*
                 endPoint = value;
                 if (startPoint.X > 0)
-                    DrawPanel.DrawLine(DrPen, startPoint, endPoint);
+                    DrawPanel.DrawLine(DrPen, startPoint, endPoint);*/
 
             }
         }
