@@ -12,29 +12,30 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-
+        UndoStack St = new UndoStack();
         Graphics gr;
-        Pen p;
-        Figure CurrentFig;
-        Bitmap p1= new Bitmap(1000,1000), p2 = new Bitmap(1000, 1000);
+        Pen pen;
+        Figure CurrentFigure;
+        Bitmap MainPicture= new Bitmap(1000,1000), TemporaryImage = new Bitmap(1000, 1000);
+        int FpsCounter = 0;
 
-        List<Figure> figures = new List<Figure>();
+        
 
         public Form1()
         {
 
             InitializeComponent();
             comboBox1.SelectedIndex = 0;
-            gr = Graphics.FromImage(p1);
+            gr = Graphics.FromImage(MainPicture);
 
 
             gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            p = new Pen(Color.Black);
-            p.StartCap = p.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-            p.Width = PenWidthBar.Value;
-            CurrentFig = new StraigthLine(-1, -1, gr, p, FillColorPanel.BackColor);
+            pen = new Pen(Color.Black);
+            pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+            pen.Width = PenWidthBar.Value;
+            CurrentFigure = new StraigthLine(-1, -1, gr, pen, FillColorPanel.BackColor);
 
-            pictureBox1.Image = p1;
+            pictureBox1.Image = MainPicture;
 
 
         }
@@ -43,28 +44,32 @@ namespace WindowsFormsApp1
         {
 
 
-            CurrentFig.StartPoint = new Point(e.X, e.Y);
+            CurrentFigure.StartPoint = new Point(e.X, e.Y);
             PreDrawTimer.Enabled = true;
+            FpsCounter = 0;
+            timer1.Enabled = true;
 
         }
 
         private void panel1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (CurrentFig.StartPoint.X < 0)
+            if (CurrentFigure.StartPoint.X < 0)
                 return;
 
-            if (!PreDrawTimer.Enabled)
+            if (!PreDrawTimer.Enabled )
             {
-                p2.Dispose();
+                FpsCounter++;
 
-                p2 = (Bitmap)p1.Clone();
+                TemporaryImage.Dispose();
+
+                TemporaryImage = (Bitmap)MainPicture.Clone();
                 
-                pictureBox1.Image = p2;
-                gr = Graphics.FromImage(p2);
-                CurrentFig.DrawPanel = gr;
+                pictureBox1.Image = TemporaryImage;
+                gr = Graphics.FromImage(TemporaryImage);
+                CurrentFigure.DrawPanel = gr;
 
 
-                CurrentFig.EndPoint = e.Location;
+                CurrentFigure.EndPoint = e.Location;
                 gr.Dispose();
                 PreDrawTimer.Enabled = true;
                
@@ -78,20 +83,23 @@ namespace WindowsFormsApp1
         private void panel1_MouseUp(object sender, MouseEventArgs e)
         {
 
+            timer1.Enabled = false;
             PreDrawTimer.Enabled = false;
             try
             {
 
-                gr = Graphics.FromImage(p1);
-                CurrentFig.DrawPanel = gr;
-                CurrentFig.EndPoint = new Point(e.X, e.Y);
-                CurrentFig.StartPoint = new Point(-2,-2);
-                
-                pictureBox1.Image = p1;
+                gr = Graphics.FromImage(MainPicture);
+                CurrentFigure.DrawPanel = gr;
+                CurrentFigure.EndPoint = new Point(e.X, e.Y);
 
-                if ((e.Button == MouseButtons.Right) && (CurrentFig is BrokenLine))
+
+                CurrentFigure.StartPoint = new Point(-2,-2);
+                
+                pictureBox1.Image = MainPicture;
+
+                if ((e.Button == MouseButtons.Right) && (CurrentFigure is BrokenLine))
                 {
-                    CurrentFig = new BrokenLine(-1, -1, gr, p, FillColorPanel.BackColor);
+                    CurrentFigure = new BrokenLine(-1, -1, gr, pen, FillColorPanel.BackColor);
                     return;
                 }
             }
@@ -100,10 +108,10 @@ namespace WindowsFormsApp1
 
         private void ClearButton_Click(object sender, EventArgs e)
         {
-            gr = Graphics.FromImage(p1);
+            gr = Graphics.FromImage(MainPicture);
 
             gr.Clear(pictureBox1.BackColor);
-            pictureBox1.Image = p1;
+            pictureBox1.Image = MainPicture;
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -111,6 +119,7 @@ namespace WindowsFormsApp1
             RigthPolygon.Visible = false;
             numericUpDown1.Visible = false;
             TopsLabel.Visible = false;
+            label2.Visible = false;
 
             pictureBox1.MouseDown -= panel1_MouseDown;
             pictureBox1.MouseDown += panel1_MouseDown;
@@ -120,40 +129,39 @@ namespace WindowsFormsApp1
                 
 
                 case 0:
-                    CurrentFig = new StraigthLine(-1, -1, gr, p, FillColorPanel.BackColor);
+                    CurrentFigure = new StraigthLine(-1, -1, gr, pen, FillColorPanel.BackColor);
                     break;
                 case 1 :
-                    CurrentFig = new Rectangle(-1, -1, gr, p, FillColorPanel.BackColor);
+                    CurrentFigure = new Rectangle(-1, -1, gr, pen, FillColorPanel.BackColor);
                     break;
                 case 2:
-                    CurrentFig = new Ellipse(-1, -1, gr, p, FillColorPanel.BackColor);
+                    CurrentFigure = new Ellipse(-1, -1, gr, pen, FillColorPanel.BackColor);
                     break;
                 case 3:
                     RigthPolygon.Checked = true;
                     RigthPolygon.Visible = true;
                     numericUpDown1.Visible = true;
                     TopsLabel.Visible = true;
-                    CurrentFig = new RigthPolygon(-1, -1, gr, p, FillColorPanel.BackColor);
+                    CurrentFigure = new RigthPolygon(-1, -1, gr, pen, FillColorPanel.BackColor);
+                    
                     break;
                 case 4:
                     pictureBox1.MouseDown -= panel1_MouseDown;
-                    CurrentFig = new BrokenLine (-1, -1, gr, p, FillColorPanel.BackColor);
+                    CurrentFigure = new BrokenLine (-1, -1, gr, pen, FillColorPanel.BackColor);
+                    label2.Text = "Чтобы завершить рисование ломанной, нажмите на ПКМ";
+                    label2.Visible = true;
                     break;
             }
         }
 
         private void PenWidthBar_Scroll(object sender, EventArgs e)
         {
-            p.Width = PenWidthBar.Value;
+            pen.Width = PenWidthBar.Value;
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            if (CurrentFig is RigthPolygon)
-                (CurrentFig as RigthPolygon).TopAmount = (int)numericUpDown1.Value;
-            if (CurrentFig is Polygon)
-                (CurrentFig as Polygon).TopAmount = (int)numericUpDown1.Value;
-
+            (CurrentFigure as Polygon).TopAmount = (int)numericUpDown1.Value;
         }
 
         private void PenColorButton_Click(object sender, EventArgs e)
@@ -161,7 +169,7 @@ namespace WindowsFormsApp1
             if (colorDialog1.ShowDialog() == DialogResult.OK)
             {
                 PenColorPanel.BackColor = colorDialog1.Color;
-                p.Color = colorDialog1.Color;
+                pen.Color = colorDialog1.Color;
             }
         }
 
@@ -170,7 +178,7 @@ namespace WindowsFormsApp1
             if (colorDialog1.ShowDialog() == DialogResult.OK)
             {
                 FillColorPanel.BackColor = colorDialog1.Color;
-                CurrentFig.FillColor = colorDialog1.Color;
+                CurrentFigure.FillColor = colorDialog1.Color;
 
 
             }
@@ -178,11 +186,24 @@ namespace WindowsFormsApp1
 
         private void RigthPolygon_CheckedChanged(object sender, EventArgs e)
         {
-            if (RigthPolygon.Checked)          
-                CurrentFig = new RigthPolygon(-1, -1, gr, p, FillColorPanel.BackColor);       
+            label2.Visible = false;
+            if (RigthPolygon.Checked)
+                CurrentFigure = new RigthPolygon(-1, -1, gr, pen, FillColorPanel.BackColor);
             else
-                CurrentFig = new Polygon(-1, -1, gr, p, FillColorPanel.BackColor);
+            {
+                CurrentFigure = new Polygon(-1, -1, gr, pen, FillColorPanel.BackColor);
+                label2.Visible = true;
+                label2.Text = "Рисование по точкам.!Не  тянуть фигуру с зажатой ЛКМ";
+            }
+           (CurrentFigure as Polygon).TopAmount = (int)numericUpDown1.Value;
 
+        }
+
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            label3.Text = FpsCounter.ToString();
+            FpsCounter = 0;
         }
 
         private void PreDrawTimer_Tick(object sender, EventArgs e)
@@ -192,248 +213,69 @@ namespace WindowsFormsApp1
     }
 
 
+   
 
+    //----------------------------------------------------------------------------------------
 
+    // Class for undo stack realization.
 
-
-
-    public abstract class Figure
+    public class UndoStack
     {
-        public Graphics DrawPanel;
-        protected Point startPoint;
-        protected Point endPoint = new Point(-1,-1);
-        public Pen DrPen;
-        public Color FillColor;
-
-
-        public Figure(int x0, int y0, Graphics gr, Pen p, Color Fc)
-        {
-            startPoint = new Point(x0, y0);
-            DrawPanel = gr;
-            DrPen = p;
-            FillColor = Fc;
-        }
-
-        public virtual Point StartPoint
-        {
-            get
-            {
-                return startPoint;
-            }
-            set
-            {
-                startPoint = value;
-
-            }
-        }
-
-        public virtual Point EndPoint
-        {
-            get
-            {
-                return endPoint;
-            }
-            set
-            {
-                endPoint = value;
-
-            }
-
-        }
-
-        protected void FindLeftTopPoint( ref Point p1, ref Point p2)
-        {
-            int buf;
-            if (p2.X < p1.X)
-            {
-                buf = p2.X;
-                p2.X = p1.X;
-                p1.X = buf;
-            }
-            if (p2.Y < p1.Y)
-            {
-                buf = p2.Y;
-                p2.Y = p1.Y;
-                p1.Y = buf;
-            }
-        }
-
-
-    }
-
-    public class StraigthLine : Figure
-    {
-        public StraigthLine(int x0, int y0, Graphics gr, Pen p, Color Fc) : base(x0, y0, gr, p, Fc) { }
-
-        public override Point EndPoint
-        {
-            get => base.StartPoint;
-            set
-            {
-                endPoint = value;
-                DrawPanel.DrawLine(DrPen, startPoint, endPoint);
-
-            }
-        }
-
-
-
-    }
-
-    public class Rectangle : Figure
-    {
-
-        public Rectangle(int x0, int y0, Graphics gr, Pen p, Color Fc) : base(x0, y0, gr, p, Fc) { }
-
-
-        public override Point EndPoint
-        {
-            get => base.StartPoint;
-            set
-            {
-                endPoint = value;
-                Point p1 = new Point(startPoint.X, startPoint.Y);
-
-                FindLeftTopPoint(ref startPoint, ref endPoint);
-
-                var br = new SolidBrush(FillColor);
-                DrawPanel.DrawRectangle(DrPen, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
-                DrawPanel.FillRectangle(br, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
-                startPoint = p1;
-            }
-        }
-
-    }
-
-    public class Ellipse : Figure
-    {
-
-        public Ellipse(int x0, int y0, Graphics gr, Pen p, Color Fc) : base(x0, y0, gr, p, Fc) { }
-
-        public override Point EndPoint
-        {
-            get => base.StartPoint;
-            set
-            {
-                endPoint = value;
-                Point p1 = new Point(startPoint.X, startPoint.Y);
-                FindLeftTopPoint(ref startPoint, ref endPoint);
-
-
-                var br = new SolidBrush(FillColor);
-                DrawPanel.DrawEllipse(DrPen, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
-                DrawPanel.FillEllipse(br, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
-                startPoint = p1;
-                br.Dispose();
-            }
-        }
-
-    }
-
-    public class RigthPolygon : Figure
-    {
-
-        public RigthPolygon(int x0, int y0, Graphics gr, Pen p, Color Fc) : base(x0, y0, gr, p, Fc) { }
-
-        public int TopAmount = 3;
-
-        public override Point EndPoint
-        {
-            get => base.StartPoint;
-            set
-            {
-                endPoint = value;
-
-                int r = (int)(endPoint.X - startPoint.X) / 2, x1, y1;
-
-                var center = new PointF(StartPoint.X + r, startPoint.Y + r);
-                
-                double angle = Math.PI * 2 / TopAmount, shiftAngle = Math.PI* (endPoint.X - startPoint.X) / (endPoint.Y - startPoint.Y);
-
-
-
-                Point[] points = new Point[TopAmount];
-                for (int i = 0; i < TopAmount; i++)
-                {
-                    x1 = (int)(center.X + Math.Cos(i * angle + shiftAngle) * r);
-                    y1 = (int)(center.Y + Math.Sin(i * angle+ shiftAngle) * r);
-                    points[i].X = x1;
-                    points[i].Y = y1;
-
-                }
-
-                var br = new SolidBrush(FillColor);
-               
-                DrawPanel.DrawPolygon(DrPen,points);
-                DrawPanel.FillPolygon(br, points);
-
-                br.Dispose();
-
-            }
-        }
-    }
-
-    public class Polygon : Figure
-    {
-        public Polygon(int x0, int y0, Graphics gr, Pen p, Color Fc) : base(x0, y0, gr, p, Fc) { }
-        private int topAmount = 3;
-        private Point[] points = new Point[3] ;
+        private int StackSize = 10;
+        private Stack<Figure> LastFig;
         private int n = 0;
+        public Graphics gr;
 
-        public int TopAmount 
+        public UndoStack(int size)
         {
-            get
-            {
-                return topAmount;
-            }
-            set
-            {
-                topAmount = value;
-                points = new Point[topAmount];
-
-            }
-            
+            StackSize = size;
+            LastFig = new Stack<Figure>();
+        }
+        public UndoStack()
+        {
+            LastFig = new Stack<Figure>();
         }
 
-        
-        
-
-        public override Point EndPoint
+        public bool Push(Figure F)
         {
-            get => base.StartPoint;
-            set
+            if (n < StackSize)
             {
+                LastFig.Push(F);
+                n++;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public Figure Pop()
+        {
+            if (n == 0)
+                return null;
+            else
+            {
+                Figure ret = LastFig.Pop();
+                n--;
+
+                Figure[] Arr = new Figure[StackSize];
+                int FigAmount = n, i;
 
 
-                endPoint = value;
+                for ( i = 0; i < n; i++)               
+                    Arr[i] = LastFig.Pop();
 
-                if ( n < (TopAmount - 1) )
+                for (i = n -1 ; i >=0; i--)
                 {
-
-                    points[n] = value;
-                    if (n > 0)
-                    {
-                        DrawPanel.DrawLine(DrPen, points[n - 1], points[n]);
-                    }
-
-                    n++;
+                    LastFig.Push(Arr[i]);
+                    Arr[i].DrawPanel = gr;
+                    Arr[i].EndPoint = Arr[i].EndPoint;
 
                 }
-                else
-                {
-                    points[n] = value;
-                    n = 0;
-
-                    var br = new SolidBrush(FillColor);
-                    DrawPanel.DrawPolygon(DrPen, points);
-                    DrawPanel.FillPolygon(br, points);
-
-                    br.Dispose();
-                }
 
 
-                
 
+
+                return ret;
             }
         }
 
@@ -441,41 +283,4 @@ namespace WindowsFormsApp1
     }
 
 
-    public class BrokenLine: Figure
-    {
-        public BrokenLine(int x0, int y0, Graphics gr, Pen p, Color Fc) : base(x0, y0, gr, p, Fc) { }
-
-        public override Point StartPoint
-        {
-            get => base.StartPoint ;
-
-            set
-            {
-                startPoint = value;
-                if (value.X == -2)
-                {
-                    startPoint = new Point(endPoint.X, endPoint.Y);
-                }
-
-            }
-
-        }
-
-        public override Point EndPoint
-        {
-            get
-            {
-                return endPoint;
-            }
-            set
-            {
-                
-                endPoint = value;
-                if (startPoint.X>0) 
-                 DrawPanel.DrawLine(DrPen, startPoint, endPoint);
-
-            }
-        }
-
-    }
 }

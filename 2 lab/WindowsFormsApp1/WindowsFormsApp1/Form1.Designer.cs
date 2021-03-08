@@ -43,6 +43,9 @@
             this.PenColorPanel = new System.Windows.Forms.Panel();
             this.FillColorButton = new System.Windows.Forms.Button();
             this.FillColorPanel = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PenWidthBar)).BeginInit();
@@ -119,7 +122,7 @@
             // 
             // PreDrawTimer
             // 
-            this.PreDrawTimer.Interval = 50;
+            this.PreDrawTimer.Interval = 10;
             this.PreDrawTimer.Tick += new System.EventHandler(this.PreDrawTimer_Tick);
             // 
             // pictureBox1
@@ -193,11 +196,35 @@
             this.FillColorPanel.TabIndex = 10;
             this.FillColorPanel.Click += new System.EventHandler(this.FillColorButton_Click);
             // 
+            // label2
+            // 
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label2.Location = new System.Drawing.Point(840, 398);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(174, 73);
+            this.label2.TabIndex = 11;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(854, 522);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(35, 13);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "label3";
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1026, 522);
+            this.ClientSize = new System.Drawing.Size(1026, 544);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.FillColorPanel);
             this.Controls.Add(this.FillColorButton);
             this.Controls.Add(this.PenColorPanel);
@@ -235,6 +262,9 @@
         private System.Windows.Forms.Panel PenColorPanel;
         private System.Windows.Forms.Button FillColorButton;
         private System.Windows.Forms.Panel FillColorPanel;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
