@@ -16,7 +16,13 @@ namespace WindowsFormsApp1
         public Color FillColor;
         public bool EndOfCurrentFigure = false;
 
-
+        public virtual string FigureName
+        {
+            get
+            {
+                return "Figure";
+            }
+        }
 
         public Figure(int x0, int y0, Graphics gr, Pen pen, Color Fc)
         {
@@ -95,6 +101,14 @@ namespace WindowsFormsApp1
 
 
 
+        public override string FigureName
+        {
+            get
+            {
+                return " Прямая";
+            }
+        }
+
         public override Point EndPoint
         {
             get => base.StartPoint;
@@ -114,7 +128,13 @@ namespace WindowsFormsApp1
     {
 
         public Rectangle(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
-
+        public override string FigureName
+        {
+            get
+            {
+                return " Прямоугольник";
+            }
+        }
 
         public override Point EndPoint
         {
@@ -140,7 +160,13 @@ namespace WindowsFormsApp1
 
         public Ellipse(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
-
+        public override string FigureName
+        {
+            get
+            {
+                return " Эллипс";
+            }
+        }
 
         public override Point EndPoint
         {
@@ -170,6 +196,13 @@ namespace WindowsFormsApp1
         private LinkedList<Point> points = new LinkedList<Point>();
         protected int n = 0;
 
+        public override string FigureName
+        {
+            get
+            {
+                return " Многоугольник";
+            }
+        }
 
         public override Point StartPoint
         {
@@ -247,7 +280,14 @@ namespace WindowsFormsApp1
         protected int topAmount = 3;
         protected Point[] points = new Point[3];
 
-      
+        public override string FigureName
+        {
+            get
+            {
+                return "Правильный многоугольник";
+            }
+        }
+
         public int TopAmount
         {
             get
@@ -327,10 +367,17 @@ namespace WindowsFormsApp1
     {
         public BrokenLine(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
-        private const int PointArraySize = 10;
+        public override string FigureName
+        {
+            get
+            {
+                return " Ломанная";
+            }
+        }
+
+
 
         private LinkedList<Point> points = new LinkedList<Point>();
-
         private int n = 0;
 
 

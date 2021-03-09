@@ -7,24 +7,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Reflection;
+using System.Runtime;
 
 namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
+        LinkedList<Type> UsedTypes = new LinkedList<Type>();
+
         UndoStack St = new UndoStack();
         Graphics gr;
         Pen pen;
         Figure CurrentFigure;
         Bitmap MainPicture= new Bitmap(1000,1000), TemporaryImage = new Bitmap(1000, 1000);
         int FpsCounter = 0;
-
+        
         
 
         public Form1()
         {
 
             InitializeComponent();
+
+            if (!LoadModules())
+            {
+                MessageBox.Show("Error. No figures modules found.");
+                Application.Exit();
+            }
+            
+            
+
             comboBox1.SelectedIndex = 0;
             gr = Graphics.FromImage(MainPicture);
 
@@ -33,12 +46,42 @@ namespace WindowsFormsApp1
             pen = new Pen(Color.Black);
             pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
             pen.Width = PenWidthBar.Value;
-            CurrentFigure = new StraigthLine(-1, -1, gr, pen, FillColorPanel.BackColor);
+            CurrentFigure = (Figure)Activator.CreateInstance(UsedTypes.ElementAt<Type>(comboBox1.SelectedIndex), -1, -1, gr, pen, FillColorPanel.BackColor);
 
             pictureBox1.Image = MainPicture;
 
 
         }
+
+        private bool LoadModules()
+        {
+            bool FiguresExist = false;
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Type[] types = assembly.GetTypes();
+            for (int i = 0; i < types.Length; i++)
+            {
+                
+                foreach (PropertyInfo pi in types[i].GetProperties())
+                {
+                    
+                    if ( (pi.Name == "FigureName") && (pi.CanRead) && (!pi.CanWrite) )
+                    {
+                        if (!types[i].IsAbstract)
+                        {
+                            UsedTypes.AddLast(types[i]);
+                            Figure tmp = (Figure)Activator.CreateInstance(types[i], -1, -1, null, null, FillColorPanel.BackColor);
+                            comboBox1.Items.Add(tmp.FigureName);
+                            FiguresExist = true;
+                        }                                                                 
+                        continue;
+                    }
+                }
+                
+            }
+            return FiguresExist;
+        }
+
 
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -117,40 +160,24 @@ namespace WindowsFormsApp1
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            RigthPolygon.Visible = false;
             numericUpDown1.Visible = false;
             TopsLabel.Visible = false;
             label2.Visible = false;
+            CurrentFigure = (Figure)Activator.CreateInstance(UsedTypes.ElementAt<Type>(comboBox1.SelectedIndex), -1, -1, gr, pen, FillColorPanel.BackColor);
 
 
-            switch (comboBox1.SelectedIndex)
+            foreach (PropertyInfo pi in UsedTypes.ElementAt<Type>(comboBox1.SelectedIndex).GetProperties())
             {
-                
-
-                case 0:
-                    CurrentFigure = new StraigthLine(-1, -1, gr, pen, FillColorPanel.BackColor);
-                    break;
-                case 1 :
-                    CurrentFigure = new Rectangle(-1, -1, gr, pen, FillColorPanel.BackColor);
-                    break;
-                case 2:
-                    CurrentFigure = new Ellipse(-1, -1, gr, pen, FillColorPanel.BackColor);
-                    break;
-                case 3:
-                    RigthPolygon.Checked = true;
-                    RigthPolygon.Visible = true;
+                if ((pi.Name == "TopAmount"))
+                {
                     numericUpDown1.Visible = true;
                     TopsLabel.Visible = true;
-                    CurrentFigure = new RigthPolygon(-1, -1, gr, pen, FillColorPanel.BackColor);
-                    
                     break;
-                case 4:
-                   
-                    CurrentFigure = new BrokenLine (-1, -1, gr, pen, FillColorPanel.BackColor);
-                    label2.Text = "Чтобы завершить рисование ломанной, нажмите на ПКМ";
-                    label2.Visible = true;
-                    break;
+                }
+
             }
+
+
         }
 
         private void PenWidthBar_Scroll(object sender, EventArgs e)
@@ -183,26 +210,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void RigthPolygon_CheckedChanged(object sender, EventArgs e)
-        {
-            label2.Visible = false;
-            if (RigthPolygon.Checked)
-            {
-                TopsLabel.Visible = true;
-                numericUpDown1.Visible = true;
-                CurrentFigure = new RigthPolygon(-1, -1, gr, pen, FillColorPanel.BackColor);
-                (CurrentFigure as RigthPolygon).TopAmount = (int)numericUpDown1.Value;
-            }
-            else
-            {
-                CurrentFigure = new Polygon(-1, -1, gr, pen, FillColorPanel.BackColor);
-                numericUpDown1.Visible = false;
-                TopsLabel.Visible = false;
-                label2.Visible = true;
-                label2.Text = "Чтобы завершить рисование ломанной, нажмите на ПКМ";
-            }
 
-        }
 
 
         private void timer1_Tick(object sender, EventArgs e)

@@ -32,7 +32,6 @@
             this.ClearButton = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.RigthPolygon = new System.Windows.Forms.CheckBox();
             this.TopsLabel = new System.Windows.Forms.Label();
             this.PreDrawTimer = new System.Windows.Forms.Timer(this.components);
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -64,12 +63,6 @@
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
-            "Линия",
-            "Прямоугольник",
-            "Эллипс",
-            "Многоугольник",
-            "Ломанная"});
             this.comboBox1.Location = new System.Drawing.Point(844, 12);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(125, 21);
@@ -98,19 +91,6 @@
             0,
             0});
             this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
-            // 
-            // RigthPolygon
-            // 
-            this.RigthPolygon.AutoSize = true;
-            this.RigthPolygon.Checked = true;
-            this.RigthPolygon.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.RigthPolygon.Location = new System.Drawing.Point(879, 39);
-            this.RigthPolygon.Name = "RigthPolygon";
-            this.RigthPolygon.Size = new System.Drawing.Size(90, 17);
-            this.RigthPolygon.TabIndex = 4;
-            this.RigthPolygon.Text = "Правильный";
-            this.RigthPolygon.UseVisualStyleBackColor = true;
-            this.RigthPolygon.CheckedChanged += new System.EventHandler(this.RigthPolygon_CheckedChanged);
             // 
             // TopsLabel
             // 
@@ -233,7 +213,6 @@
             this.Controls.Add(this.PenWidthBar);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.TopsLabel);
-            this.Controls.Add(this.RigthPolygon);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.ClearButton);
@@ -251,7 +230,6 @@
         private System.Windows.Forms.Button ClearButton;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.CheckBox RigthPolygon;
         private System.Windows.Forms.Label TopsLabel;
         private System.Windows.Forms.Timer PreDrawTimer;
         private System.Windows.Forms.PictureBox pictureBox1;
