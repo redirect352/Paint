@@ -14,6 +14,8 @@ namespace WindowsFormsApp1
         protected Point endPoint = new Point(-1, -1);
         public Pen DrPen;
         public Color FillColor;
+        public bool EndOfCurrentFigure = false;
+
 
 
         public Figure(int x0, int y0, Graphics gr, Pen pen, Color Fc)
@@ -165,25 +167,9 @@ namespace WindowsFormsApp1
     {
         public Polygon(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
-
-        protected int topAmount = 3;
-        protected Point[] points = new Point[3];
+        private LinkedList<Point> points = new LinkedList<Point>();
         protected int n = 0;
 
-        public int TopAmount
-        {
-            get
-            {
-                return topAmount;
-            }
-            set
-            {
-                topAmount = value;
-                points = new Point[topAmount];
-
-            }
-
-        }
 
         public override Point StartPoint
         {
@@ -194,7 +180,7 @@ namespace WindowsFormsApp1
                 if ( (n == 0) && (value.X >0))
                 {
 
-                    points[n] = value;
+                    points.AddLast(value);
                     n++;
                 }
 
@@ -208,9 +194,7 @@ namespace WindowsFormsApp1
             get => base.PreDrawEndPoint;
             set
             {
-                points[n] = value;
-                DrawPanel.DrawLine(DrPen, points[n - 1], points[n]);
-               
+                DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), value);
             }
         }
 
@@ -223,33 +207,28 @@ namespace WindowsFormsApp1
 
 
                 endPoint = value;
-
-                if (n < (TopAmount - 1))
+                points.AddLast(value);
+                if (!this.EndOfCurrentFigure)
                 {
 
-                    points[n] = value;
+                    
                     if (n > 0)
                     {
-                        DrawPanel.DrawLine(DrPen, points[n - 1], points[n]);
+                        DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), points.ElementAt<Point>(n));
                     }
-                    else
-                    {
-                        DrawPanel.DrawLine(DrPen, points[n], new Point(points[n].X + 1, points[n].Y + 1));
-                    }
-
                     n++;
 
                 }
                 else
                 {
-                    points[n] = value;
                     n = 0;
 
                     var brush = new SolidBrush(FillColor);
-                    DrawPanel.DrawPolygon(DrPen, points);
-                    DrawPanel.FillPolygon(brush, points);
-
+                    DrawPanel.DrawPolygon(DrPen, points.ToArray());
+                    DrawPanel.FillPolygon(brush, points.ToArray());
+                    points.Clear();
                     brush.Dispose();
+                    this.EndOfCurrentFigure = false;
                 }
 
 
@@ -265,7 +244,23 @@ namespace WindowsFormsApp1
     {
 
         public RigthPolygon(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
+        protected int topAmount = 3;
+        protected Point[] points = new Point[3];
 
+      
+        public int TopAmount
+        {
+            get
+            {
+                return topAmount;
+            }
+            set
+            {
+                points = new Point[value];
+                topAmount = value;
+            }
+
+        }
 
 
         public override Point StartPoint
@@ -334,7 +329,8 @@ namespace WindowsFormsApp1
 
         private const int PointArraySize = 10;
 
-        private Point[] points = new Point[PointArraySize];
+        private LinkedList<Point> points = new LinkedList<Point>();
+
         private int n = 0;
 
 
@@ -344,10 +340,12 @@ namespace WindowsFormsApp1
 
             set
             {
+                
+                
                 startPoint = value;
-                if (n == 0)
+                if ((n == 0) && (value.X >= 0))
                 {
-                    points[n] = value;
+                    points.AddLast(value);
                     n++;
                 }
             }
@@ -359,8 +357,8 @@ namespace WindowsFormsApp1
             get => base.PreDrawEndPoint;
             set
             {
-                points[n] = value;
-                DrawPanel.DrawLine(DrPen, points[n - 1], points[n]);
+                
+                DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n-1), value);
             }
         }
 
@@ -373,26 +371,20 @@ namespace WindowsFormsApp1
             }
             set
             {
-                points[n] = value;
+                points.AddLast(value);
                 if ( n > 0)
                 {
-                    DrawPanel.DrawLine(DrPen,points[n-1], points[n]);
+                    DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), points.ElementAt<Point>(n));
 
                 }
                 n++;
 
-
-                if ( n >= PointArraySize)
+                if (this.EndOfCurrentFigure)
                 {
-                    points[0] = points[PointArraySize - 1];
-                    n = 1;
-
+                    points = new LinkedList<Point>(); 
+                    n = 0;
+                    EndOfCurrentFigure = false;
                 }
-
-                /*
-                endPoint = value;
-                if (startPoint.X > 0)
-                    DrawPanel.DrawLine(DrPen, startPoint, endPoint);*/
 
             }
         }

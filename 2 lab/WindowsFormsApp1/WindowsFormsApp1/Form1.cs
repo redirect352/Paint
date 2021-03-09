@@ -94,18 +94,15 @@ namespace WindowsFormsApp1
 
                 gr = Graphics.FromImage(MainPicture);
                 CurrentFigure.DrawPanel = gr;
+
+
+                if (e.Button == MouseButtons.Right)
+                    CurrentFigure.EndOfCurrentFigure = true;
                 CurrentFigure.EndPoint = new Point(e.X, e.Y);
 
-
                 CurrentFigure.StartPoint = new Point(-2,-2);
-                
                 pictureBox1.Image = MainPicture;
-
-                if ((e.Button == MouseButtons.Right) && (CurrentFigure is BrokenLine))
-                {
-                    CurrentFigure = new BrokenLine(-1, -1, gr, pen, FillColorPanel.BackColor);
-                    return;
-                }
+                
             }
             catch { }
         }
@@ -163,7 +160,7 @@ namespace WindowsFormsApp1
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            (CurrentFigure as Polygon).TopAmount = (int)numericUpDown1.Value;
+            (CurrentFigure as RigthPolygon).TopAmount = (int)numericUpDown1.Value;
         }
 
         private void PenColorButton_Click(object sender, EventArgs e)
@@ -190,14 +187,20 @@ namespace WindowsFormsApp1
         {
             label2.Visible = false;
             if (RigthPolygon.Checked)
+            {
+                TopsLabel.Visible = true;
+                numericUpDown1.Visible = true;
                 CurrentFigure = new RigthPolygon(-1, -1, gr, pen, FillColorPanel.BackColor);
+                (CurrentFigure as RigthPolygon).TopAmount = (int)numericUpDown1.Value;
+            }
             else
             {
                 CurrentFigure = new Polygon(-1, -1, gr, pen, FillColorPanel.BackColor);
+                numericUpDown1.Visible = false;
+                TopsLabel.Visible = false;
                 label2.Visible = true;
-                label2.Text = "Рисование по точкам.!Не  тянуть фигуру с зажатой ЛКМ";
+                label2.Text = "Чтобы завершить рисование ломанной, нажмите на ПКМ";
             }
-           (CurrentFigure as Polygon).TopAmount = (int)numericUpDown1.Value;
 
         }
 
