@@ -61,23 +61,17 @@ namespace WindowsFormsApp1
             Type[] types = assembly.GetTypes();
             for (int i = 0; i < types.Length; i++)
             {
-                
-                foreach (PropertyInfo pi in types[i].GetProperties())
-                {
-                    
-                    if ( (pi.Name == "FigureName") && (pi.CanRead) && (!pi.CanWrite) )
+               if (Attribute.IsDefined(types[i], typeof(FigureNameAttribute)))
+               {
+                    FigureNameAttribute t = (FigureNameAttribute)types[i].GetCustomAttribute(typeof(FigureNameAttribute));
+                    if ( (t.IsDrawing))
                     {
-                        if (!types[i].IsAbstract)
-                        {
-                            UsedTypes.AddLast(types[i]);
-                            Figure tmp = (Figure)Activator.CreateInstance(types[i], -1, -1, null, null, FillColorPanel.BackColor);
-                            comboBox1.Items.Add(tmp.FigureName);
-                            FiguresExist = true;
-                        }                                                                 
-                        continue;
+                        UsedTypes.AddLast(types[i]);
+                        comboBox1.Items.Add(t.Name);
+                        FiguresExist = true;
                     }
-                }
-                
+
+                }                          
             }
             return FiguresExist;
         }
@@ -165,7 +159,7 @@ namespace WindowsFormsApp1
             label2.Visible = false;
             CurrentFigure = (Figure)Activator.CreateInstance(UsedTypes.ElementAt<Type>(comboBox1.SelectedIndex), -1, -1, gr, pen, FillColorPanel.BackColor);
 
-
+            
             foreach (PropertyInfo pi in UsedTypes.ElementAt<Type>(comboBox1.SelectedIndex).GetProperties())
             {
                 if ((pi.Name == "TopAmount"))
