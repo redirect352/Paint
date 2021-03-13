@@ -7,7 +7,6 @@ using System.Drawing;
 
 namespace WindowsFormsApp1
 {
-    [FigureNameAttribute("Прямоугольник", true)]
     public class Rectangle : Figure
     {
 
@@ -28,6 +27,29 @@ namespace WindowsFormsApp1
                 DrawPanel.DrawRectangle(DrPen, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
                 DrawPanel.FillRectangle(brush, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
                 startPoint = MainPicture;
+            }
+        }
+
+    }
+
+    public class RectangleCreator : IFiguresCreator
+    {
+        public Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
+        {
+            return new Rectangle(x0, y0, gr, pen, Fc);
+        }
+        public string Name
+        {
+            get
+            {
+                return " Прямоугольник";
+            }
+        }
+        public bool TopsNeeded
+        {
+            get
+            {
+                return false;
             }
         }
 

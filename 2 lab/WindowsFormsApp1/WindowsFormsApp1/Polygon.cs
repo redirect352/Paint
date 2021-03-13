@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace WindowsFormsApp1
 {
-    [FigureNameAttribute("Многоугольник", true)]
+
     public class Polygon : Figure
     {
         public Polygon(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
@@ -85,4 +85,29 @@ namespace WindowsFormsApp1
 
 
     }
+
+
+    public class PolygonCreator : IFiguresCreator
+    {
+        public Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
+        {
+            return new Polygon(x0, y0, gr, pen, Fc);
+        }
+        public string Name
+        {
+            get
+            {
+                return " Многоугольник";
+            }
+        }
+        public bool TopsNeeded
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+    }
+
 }

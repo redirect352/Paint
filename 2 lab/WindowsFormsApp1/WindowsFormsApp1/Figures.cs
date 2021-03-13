@@ -7,19 +7,10 @@ using System.Drawing;
 
 namespace WindowsFormsApp1
 {
-    public class FigureNameAttribute : System.Attribute
-    {
-        public string Name;
-        public bool IsDrawing;
-        public FigureNameAttribute(string name, bool dr)
-        {
-            Name = name;
-            IsDrawing = dr;
-        }
-    }
 
 
-    [FigureNameAttribute("Figure", false)]
+
+
     public abstract class Figure
     {
         public Graphics DrawPanel;

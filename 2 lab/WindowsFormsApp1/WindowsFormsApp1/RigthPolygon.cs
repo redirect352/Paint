@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace WindowsFormsApp1
 {
-    [FigureNameAttribute("Правильный многоугольник", true)]
+
     public class RigthPolygon : Polygon
     {
 
@@ -90,4 +90,30 @@ namespace WindowsFormsApp1
             }
         }
     }
+
+    public class RigthPolygonCreator : IFiguresCreator
+    {
+        public Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
+        {
+            return new RigthPolygon(x0, y0, gr, pen, Fc);
+        }
+        public string Name
+        {
+            get
+            {
+                return " Правильный Многоугольник";
+            }
+        }
+        public bool TopsNeeded
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+    }
+
+
 }
+

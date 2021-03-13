@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace WindowsFormsApp1
 {
-    [FigureNameAttribute("Ломанная", true)]
+
     public class BrokenLine : Figure
     {
         public BrokenLine(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
@@ -76,4 +76,28 @@ namespace WindowsFormsApp1
         }
 
     }
+
+
+    public class BrokenLineCreator : IFiguresCreator
+    {
+        public Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
+        {
+            return new BrokenLine(x0, y0, gr, pen, Fc);
+        }
+        public string Name
+        {
+            get
+            {
+                return "Ломанная";
+            }
+        }
+        public bool TopsNeeded
+        {
+            get
+            {
+                return false;
+            }
+        }
+    }
+
 }

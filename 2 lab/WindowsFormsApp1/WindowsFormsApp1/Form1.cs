@@ -15,6 +15,7 @@ namespace WindowsFormsApp1
     public partial class Form1 : Form
     {
         LinkedList<Type> UsedTypes = new LinkedList<Type>();
+        LinkedList<IFiguresCreator> Creators = new LinkedList<IFiguresCreator>();
 
         UndoStack St = new UndoStack();
         Graphics gr;
@@ -46,7 +47,9 @@ namespace WindowsFormsApp1
             pen = new Pen(Color.Black);
             pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
             pen.Width = PenWidthBar.Value;
-            CurrentFigure = (Figure)Activator.CreateInstance(UsedTypes.ElementAt<Type>(comboBox1.SelectedIndex), -1, -1, gr, pen, FillColorPanel.BackColor);
+
+            IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);   
+            CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
 
             pictureBox1.Image = MainPicture;
 
@@ -56,22 +59,27 @@ namespace WindowsFormsApp1
         private bool LoadModules()
         {
             bool FiguresExist = false;
-
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            Type[] types = assembly.GetTypes();
-            for (int i = 0; i < types.Length; i++)
+            try
             {
-               if (Attribute.IsDefined(types[i], typeof(FigureNameAttribute)))
-               {
-                    FigureNameAttribute t = (FigureNameAttribute)types[i].GetCustomAttribute(typeof(FigureNameAttribute));
-                    if ( (t.IsDrawing))
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Type[] types = assembly.GetTypes();
+                int k = 0;
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if (types[i].GetInterface(typeof(IFiguresCreator).FullName) != null)
                     {
-                        UsedTypes.AddLast(types[i]);
-                        comboBox1.Items.Add(t.Name);
-                        FiguresExist = true;
-                    }
+                        Creators.AddLast((IFiguresCreator)Activator.CreateInstance(types[i]));
 
-                }                          
+
+                        comboBox1.Items.Add(Creators.ElementAt<IFiguresCreator>(k).Name);
+                        FiguresExist = true;
+                        k++;
+                    }
+                }
+            }
+            catch
+            {
+                FiguresExist = false;
             }
             return FiguresExist;
         }
@@ -157,20 +165,15 @@ namespace WindowsFormsApp1
             numericUpDown1.Visible = false;
             TopsLabel.Visible = false;
             label2.Visible = false;
-            CurrentFigure = (Figure)Activator.CreateInstance(UsedTypes.ElementAt<Type>(comboBox1.SelectedIndex), -1, -1, gr, pen, FillColorPanel.BackColor);
+            IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);
 
-            
-            foreach (PropertyInfo pi in UsedTypes.ElementAt<Type>(comboBox1.SelectedIndex).GetProperties())
+            CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
+                
+            if (CurrentCreator.TopsNeeded)
             {
-                if ((pi.Name == "TopAmount"))
-                {
-                    numericUpDown1.Visible = true;
-                    TopsLabel.Visible = true;
-                    break;
-                }
-
+                numericUpDown1.Visible = true;
+                TopsLabel.Visible = true;
             }
-
 
         }
 
