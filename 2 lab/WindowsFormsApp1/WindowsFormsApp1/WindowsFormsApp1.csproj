@@ -63,6 +63,7 @@
     <Compile Include="Rectangle.cs" />
     <Compile Include="RigthPolygon.cs" />
     <Compile Include="StraigthLine.cs" />
+    <Compile Include="UndoStack.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

@@ -11,11 +11,22 @@ namespace WindowsFormsApp1
     public class Polygon : Figure
     {
         public Polygon(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
-
         private LinkedList<Point> points = new LinkedList<Point>();
         protected int n = 0;
 
+        public override Figure Clone()
+        {
+            Polygon NewF = new Polygon(startPoint.X, startPoint.Y, null, (Pen)DrPen.Clone(), FillColor);
+            NewF.EndOfCurrentFigure = this.EndOfCurrentFigure;
+            
+            for (int i=0; i< points.Count;i++)
+            {
+                NewF.points.AddLast(points.ElementAt<Point>(i));
+            }
+            NewF.n = this.n;
 
+            return NewF;
+        }
 
         public override Point StartPoint
         {
@@ -23,6 +34,12 @@ namespace WindowsFormsApp1
             set
             {
                 startPoint = value;
+                if (startPoint.X == -2 && this.EndOfCurrentFigure)
+                {
+                    n = 0;
+                    points.Clear();
+                    this.EndOfCurrentFigure = false;
+                }
                 if ((n == 0) && (value.X > 0))
                 {
 
@@ -57,8 +74,8 @@ namespace WindowsFormsApp1
                 if (!this.EndOfCurrentFigure)
                 {
 
-
-                    if (n > 0)
+                    
+                    if (n > 0 )
                     {
                         DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), points.ElementAt<Point>(n));
                     }
@@ -66,21 +83,34 @@ namespace WindowsFormsApp1
 
                 }
                 else
-                {
-                    n = 0;
+                    this.Redraw();
+                                                                             
+            }
+        }
 
-                    var brush = new SolidBrush(FillColor);
-                    DrawPanel.DrawPolygon(DrPen, points.ToArray());
-                    DrawPanel.FillPolygon(brush, points.ToArray());
-                    points.Clear();
-                    brush.Dispose();
-                    this.EndOfCurrentFigure = false;
+        public override void Redraw()
+        {
+            if (EndOfCurrentFigure )
+            {
+                var brush = new SolidBrush(FillColor);
+                DrawPanel.DrawPolygon(DrPen, points.ToArray());
+                DrawPanel.FillPolygon(brush, points.ToArray());
+                brush.Dispose();
+            }
+            else
+            {
+                int N = points.Count;
+                if (N > 1)
+                {
+                    for (int i = 0; i < N - 1; i++)
+                    {
+                        DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(i), points.ElementAt<Point>(i+1));
+                    }
+
                 }
 
-
-
-
             }
+
         }
 
 
@@ -93,6 +123,9 @@ namespace WindowsFormsApp1
         {
             return new Polygon(x0, y0, gr, pen, Fc);
         }
+
+       
+
         public string Name
         {
             get

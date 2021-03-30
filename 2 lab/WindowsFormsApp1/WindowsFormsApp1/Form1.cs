@@ -17,7 +17,7 @@ namespace WindowsFormsApp1
         LinkedList<Type> UsedTypes = new LinkedList<Type>();
         LinkedList<IFiguresCreator> Creators = new LinkedList<IFiguresCreator>();
 
-        UndoStack St = new UndoStack();
+        UndoStack FiguresBackBuffer = new UndoStack(), FiguresFrontBuffer = null;
         Graphics gr;
         Pen pen;
         Figure CurrentFigure;
@@ -143,11 +143,25 @@ namespace WindowsFormsApp1
 
                 if (e.Button == MouseButtons.Right)
                     CurrentFigure.EndOfCurrentFigure = true;
+
+               
+                
+
                 CurrentFigure.EndPoint = new Point(e.X, e.Y);
+
+                FiguresBackBuffer.Push(CurrentFigure);
+                UndoButton.Enabled = true;
+
 
                 CurrentFigure.StartPoint = new Point(-2,-2);
                 pictureBox1.Image = MainPicture;
-                
+
+                if (FiguresFrontBuffer != null)
+                {
+                    FiguresFrontBuffer = null;
+                    RedoButton.Enabled = false;
+                }
+
             }
             catch { }
         }
@@ -158,6 +172,12 @@ namespace WindowsFormsApp1
 
             gr.Clear(pictureBox1.BackColor);
             pictureBox1.Image = MainPicture;
+            FiguresBackBuffer = new UndoStack();
+            UndoButton.Enabled = false;
+
+            IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);
+            CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
+
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -216,80 +236,83 @@ namespace WindowsFormsApp1
             FpsCounter = 0;
         }
 
+        private void RedoButton_Click(object sender, EventArgs e)
+        {
+            Figure tmp = FiguresFrontBuffer.Pop();
+            gr = Graphics.FromImage(MainPicture);
+            tmp.DrawPanel = gr;
+            tmp.Redraw();
+
+            FiguresBackBuffer.Push(tmp);
+            UndoButton.Enabled = true;
+
+            pictureBox1.Image = MainPicture;
+            gr.Dispose();
+            if (FiguresFrontBuffer.Count == 0)
+            {
+                RedoButton.Enabled = false;
+            }
+
+            CurrentFigure = tmp.Clone();
+            CurrentFigure.StartPoint = new Point(-1, -1);
+
+        }
+
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+
+            if (e.Control == true )
+            {
+                if (e.KeyCode == Keys.Z && UndoButton.Enabled)
+                {
+                    button1_Click(null, null);
+                }
+                if (e.KeyCode == Keys.B && RedoButton.Enabled)
+                {
+                    RedoButton_Click(null, null);
+                }
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            int N = FiguresBackBuffer.Count;
+            if (N <= 0)
+                return;
+            if (FiguresFrontBuffer == null)
+                FiguresFrontBuffer = new UndoStack();
+
+            FiguresFrontBuffer.Push(FiguresBackBuffer.Pop());
+            RedoButton.Enabled = true;
+
+            gr = Graphics.FromImage(MainPicture);     
+            gr.Clear(pictureBox1.BackColor);
+            Figure tmp;
+            Point buf;
+
+            for (int i = FiguresBackBuffer.Count -1; i >=0 ; i--)
+            {
+                tmp = FiguresBackBuffer.ElementAt(i);
+                tmp.DrawPanel = gr;
+                tmp.Redraw();
+                
+            }
+            
+            pictureBox1.Image = MainPicture;
+
+            if (FiguresBackBuffer.Count <= 0)
+                UndoButton.Enabled = false;
+            else
+            {
+                CurrentFigure = FiguresBackBuffer.ElementAt(0).Clone();
+                CurrentFigure.StartPoint = new Point(-1, -1);
+            }
+        }
+
         private void PreDrawTimer_Tick(object sender, EventArgs e)
         {
             PreDrawTimer.Enabled = false;
         }
-    }
-
-
-   
-
-    //----------------------------------------------------------------------------------------
-
-    // Class for undo stack realization.
-
-    public class UndoStack
-    {
-        private int StackSize = 10;
-        private Stack<Figure> LastFig;
-        private int n = 0;
-        public Graphics gr;
-
-        public UndoStack(int size)
-        {
-            StackSize = size;
-            LastFig = new Stack<Figure>();
-        }
-        public UndoStack()
-        {
-            LastFig = new Stack<Figure>();
-        }
-
-        public bool Push(Figure F)
-        {
-            if (n < StackSize)
-            {
-                LastFig.Push(F);
-                n++;
-                return true;
-            }
-            else
-                return false;
-        }
-
-        public Figure Pop()
-        {
-            if (n == 0)
-                return null;
-            else
-            {
-                Figure ret = LastFig.Pop();
-                n--;
-
-                Figure[] Arr = new Figure[StackSize];
-                int FigAmount = n, i;
-
-
-                for ( i = 0; i < n; i++)               
-                    Arr[i] = LastFig.Pop();
-
-                for (i = n -1 ; i >=0; i--)
-                {
-                    LastFig.Push(Arr[i]);
-                    Arr[i].DrawPanel = gr;
-                    Arr[i].EndPoint = Arr[i].EndPoint;
-
-                }
-
-
-
-
-                return ret;
-            }
-        }
-
-
     }
 
 

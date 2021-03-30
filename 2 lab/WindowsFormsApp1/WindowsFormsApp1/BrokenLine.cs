@@ -11,14 +11,24 @@ namespace WindowsFormsApp1
     public class BrokenLine : Figure
     {
         public BrokenLine(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
-
-
-
-
-
         private LinkedList<Point> points = new LinkedList<Point>();
         private int n = 0;
 
+
+        public override Figure Clone()
+        {
+            BrokenLine NewF = new BrokenLine(startPoint.X, startPoint.Y, null, (Pen)DrPen.Clone(), FillColor);
+            NewF.EndOfCurrentFigure = this.EndOfCurrentFigure;
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                NewF.points.AddLast(points.ElementAt<Point>(i));
+               
+            }
+            NewF.n = this.n;
+
+            return NewF;
+        }
 
         public override Point StartPoint
         {
@@ -26,7 +36,12 @@ namespace WindowsFormsApp1
 
             set
             {
-
+                if (this.EndOfCurrentFigure)
+                {
+                    points = new LinkedList<Point>();
+                    n = 0;
+                    EndOfCurrentFigure = false;
+                }
 
                 startPoint = value;
                 if ((n == 0) && (value.X >= 0))
@@ -43,8 +58,8 @@ namespace WindowsFormsApp1
             get => base.PreDrawEndPoint;
             set
             {
-
-                DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), value);
+                if (n>=1)
+                    DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), value);
             }
         }
 
@@ -65,17 +80,30 @@ namespace WindowsFormsApp1
                 }
                 n++;
 
-                if (this.EndOfCurrentFigure)
-                {
-                    points = new LinkedList<Point>();
-                    n = 0;
-                    EndOfCurrentFigure = false;
-                }
+
 
             }
         }
 
+        public override void Redraw()
+        {
+            int N = points.Count;
+            if (N > 1)
+            {
+                for (int i = 0; i < N - 1; i++)
+                {
+                    DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(i), points.ElementAt<Point>(i + 1));
+                }
+
+            }
+
+        }
+
+
+
     }
+
+
 
 
     public class BrokenLineCreator : IFiguresCreator

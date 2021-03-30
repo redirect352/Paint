@@ -45,6 +45,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.UndoButton = new System.Windows.Forms.Button();
+            this.RedoButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PenWidthBar)).BeginInit();
@@ -59,6 +61,7 @@
             this.ClearButton.Text = "Clear";
             this.ClearButton.UseVisualStyleBackColor = true;
             this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            this.ClearButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
             // 
             // comboBox1
             // 
@@ -68,6 +71,7 @@
             this.comboBox1.Size = new System.Drawing.Size(125, 21);
             this.comboBox1.TabIndex = 2;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.comboBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
             // 
             // numericUpDown1
             // 
@@ -147,6 +151,7 @@
             this.PenColorButton.Text = "Цвет линии";
             this.PenColorButton.UseVisualStyleBackColor = true;
             this.PenColorButton.Click += new System.EventHandler(this.PenColorButton_Click);
+            this.PenColorButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
             // 
             // PenColorPanel
             // 
@@ -166,6 +171,7 @@
             this.FillColorButton.Text = "Цвет заливки";
             this.FillColorButton.UseVisualStyleBackColor = true;
             this.FillColorButton.Click += new System.EventHandler(this.FillColorButton_Click);
+            this.FillColorButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
             // 
             // FillColorPanel
             // 
@@ -198,11 +204,39 @@
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // UndoButton
+            // 
+            this.UndoButton.Enabled = false;
+            this.UndoButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.UndoButton.Location = new System.Drawing.Point(844, 425);
+            this.UndoButton.Name = "UndoButton";
+            this.UndoButton.Size = new System.Drawing.Size(45, 30);
+            this.UndoButton.TabIndex = 14;
+            this.UndoButton.Text = "<<";
+            this.UndoButton.UseVisualStyleBackColor = true;
+            this.UndoButton.Click += new System.EventHandler(this.button1_Click);
+            this.UndoButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
+            // 
+            // RedoButton
+            // 
+            this.RedoButton.Enabled = false;
+            this.RedoButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.RedoButton.Location = new System.Drawing.Point(905, 425);
+            this.RedoButton.Name = "RedoButton";
+            this.RedoButton.Size = new System.Drawing.Size(45, 30);
+            this.RedoButton.TabIndex = 15;
+            this.RedoButton.Text = ">>";
+            this.RedoButton.UseVisualStyleBackColor = true;
+            this.RedoButton.Click += new System.EventHandler(this.RedoButton_Click);
+            this.RedoButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1026, 544);
+            this.Controls.Add(this.RedoButton);
+            this.Controls.Add(this.UndoButton);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.FillColorPanel);
@@ -218,6 +252,7 @@
             this.Controls.Add(this.ClearButton);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PenWidthBar)).EndInit();
@@ -243,6 +278,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Button UndoButton;
+        private System.Windows.Forms.Button RedoButton;
     }
 }
 

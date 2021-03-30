@@ -12,6 +12,14 @@ namespace WindowsFormsApp1
     {
         public StraigthLine(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
+        public override Figure Clone()
+        {
+
+            StraigthLine NewF = new StraigthLine(startPoint.X, startPoint.Y, DrawPanel, (Pen)DrPen.Clone(), FillColor);
+            NewF.endPoint = new Point(this.endPoint.X,this.endPoint.Y);
+            return NewF;
+
+        }
 
         public override Point EndPoint
         {
@@ -24,7 +32,10 @@ namespace WindowsFormsApp1
             }
         }
 
-
+        public override void Redraw()
+        {
+            DrawPanel.DrawLine(DrPen, startPoint, endPoint);
+        }
 
     }
 
@@ -34,6 +45,7 @@ namespace WindowsFormsApp1
         {
             return new StraigthLine(x0, y0, gr, pen, Fc);
         }
+
         public string Name
         {
             get

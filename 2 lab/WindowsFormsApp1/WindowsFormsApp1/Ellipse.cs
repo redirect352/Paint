@@ -13,25 +13,36 @@ namespace WindowsFormsApp1
 
         public Ellipse(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
+        public override Figure Clone()
+        {
 
+            Ellipse NewF = new Ellipse(startPoint.X, startPoint.Y, DrawPanel, (Pen)DrPen.Clone(), FillColor);
+            NewF.endPoint = new Point(this.endPoint.X, this.endPoint.Y);
+            return NewF;
+
+        }
 
         public override Point EndPoint
         {
-            get => base.StartPoint;
+            get => base.EndPoint;
             set
             {
                 endPoint = value;
-                Point MainPicture = new Point(startPoint.X, startPoint.Y);
-                FindLeftTopPoint(ref startPoint, ref endPoint);
-
-
-                var brush = new SolidBrush(FillColor);
-                DrawPanel.DrawEllipse(DrPen, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
-                DrawPanel.FillEllipse(brush, startPoint.X, startPoint.Y, endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
-                startPoint = MainPicture;
-                brush.Dispose();
+                this.Redraw();
             }
         }
+
+        public override void Redraw()
+        {
+         
+            var brush = new SolidBrush(FillColor);
+            DrawPanel.DrawEllipse(DrPen, Math.Min(startPoint.X, endPoint.X) , Math.Min(startPoint.Y, endPoint.Y), Math.Abs(endPoint.X - startPoint.X), Math.Abs(endPoint.Y - startPoint.Y));
+
+            DrawPanel.FillEllipse(brush, Math.Min(startPoint.X, endPoint.X) , Math.Min(startPoint.Y, endPoint.Y), Math.Abs(endPoint.X - startPoint.X), Math.Abs(endPoint.Y - startPoint.Y));
+            brush.Dispose();
+
+        }
+
 
     }
 
@@ -41,6 +52,8 @@ namespace WindowsFormsApp1
         {
             return new Ellipse(x0, y0, gr, pen, Fc);
         }
+
+
         public string Name
         {
             get

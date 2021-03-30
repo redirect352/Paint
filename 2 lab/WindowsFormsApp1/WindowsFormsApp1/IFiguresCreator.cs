@@ -11,6 +11,7 @@ namespace WindowsFormsApp1
     {
 
         Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc);
+        
         string Name { get; }
         bool TopsNeeded { get; }
     }

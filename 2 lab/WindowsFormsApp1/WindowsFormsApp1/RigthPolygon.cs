@@ -12,6 +12,16 @@ namespace WindowsFormsApp1
     {
 
         public RigthPolygon(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
+
+        public override Figure Clone()
+        {
+            RigthPolygon NewF = new RigthPolygon(startPoint.X, startPoint.Y, DrawPanel, (Pen)DrPen.Clone(), FillColor);
+            NewF.TopAmount = topAmount;
+            NewF.endPoint = new Point(this.endPoint.X, this.endPoint.Y);
+            return NewF;
+        }
+
+
         protected int topAmount = 3;
         protected Point[] points = new Point[3];
 
@@ -64,31 +74,38 @@ namespace WindowsFormsApp1
             set
             {
                 endPoint = value;
-
-                int r = (int)(endPoint.X - startPoint.X) / 2, x1, y1;
-
-                var center = new PointF(StartPoint.X + r, startPoint.Y + r);
-
-                double angle = Math.PI * 2 / TopAmount, shiftAngle = Math.PI * (endPoint.X - startPoint.X) / (endPoint.Y - startPoint.Y) / 20;
-
-                for (int i = 0; i < TopAmount; i++)
-                {
-                    x1 = (int)(center.X + Math.Cos(i * angle + shiftAngle) * r);
-                    y1 = (int)(center.Y + Math.Sin(i * angle + shiftAngle) * r);
-                    points[i].X = x1;
-                    points[i].Y = y1;
-
-                }
-
-                var brush = new SolidBrush(FillColor);
-
-                DrawPanel.DrawPolygon(DrPen, points);
-                DrawPanel.FillPolygon(brush, points);
-
-                brush.Dispose();
-
+                this.Redraw();
             }
         }
+
+        public override void Redraw()
+        {
+            int r = (int)(endPoint.X - startPoint.X) / 2, x1, y1;
+
+            var center = new PointF(StartPoint.X + r, startPoint.Y + r);
+
+            double angle = Math.PI * 2 / TopAmount, shiftAngle = Math.PI * (endPoint.X - startPoint.X) / (endPoint.Y - startPoint.Y) / 20;
+
+            for (int i = 0; i < TopAmount; i++)
+            {
+                x1 = (int)(center.X + Math.Cos(i * angle + shiftAngle) * r);
+                y1 = (int)(center.Y + Math.Sin(i * angle + shiftAngle) * r);
+                points[i].X = x1;
+                points[i].Y = y1;
+
+            }
+
+            var brush = new SolidBrush(FillColor);
+
+            DrawPanel.DrawPolygon(DrPen, points);
+            DrawPanel.FillPolygon(brush, points);
+
+            brush.Dispose();
+
+        }
+
+
+
     }
 
     public class RigthPolygonCreator : IFiguresCreator

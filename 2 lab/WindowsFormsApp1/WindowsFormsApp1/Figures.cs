@@ -11,7 +11,7 @@ namespace WindowsFormsApp1
 
 
 
-    public abstract class Figure
+    public abstract class Figure : ICloneable
     {
         public Graphics DrawPanel;
         protected Point startPoint;
@@ -30,6 +30,20 @@ namespace WindowsFormsApp1
             FillColor = Fc;
         }
 
+        object ICloneable.Clone()
+        {
+            return Clone();
+            
+        }
+
+        public virtual Figure Clone()
+        {
+            return null;
+
+        }
+
+        public virtual void Redraw()
+        { }
 
         public virtual Point StartPoint
         {
@@ -71,25 +85,6 @@ namespace WindowsFormsApp1
             }
 
         }
-
-        protected void FindLeftTopPoint(ref Point MainPicture, ref Point TemporaryImage)
-        {
-            int buf;
-            if (TemporaryImage.X < MainPicture.X)
-            {
-                buf = TemporaryImage.X;
-                TemporaryImage.X = MainPicture.X;
-                MainPicture.X = buf;
-            }
-            if (TemporaryImage.Y < MainPicture.Y)
-            {
-                buf = TemporaryImage.Y;
-                TemporaryImage.Y = MainPicture.Y;
-                MainPicture.Y = buf;
-            }
-        }
-
-
 
     }
 
