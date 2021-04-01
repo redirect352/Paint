@@ -227,7 +227,7 @@ namespace WindowsFormsApp1
             
             CurrentFigure.DrPen.Width = PenWidthBar.Value;
             pen.Width = PenWidthBar.Value;
-            if (FiguresBackBuffer.Count > 1)
+            if (FiguresBackBuffer.Count >= 1)
             {
                 Figure tmp = FiguresBackBuffer.Pop();
                 if (!tmp.EndOfCurrentFigure)
@@ -284,11 +284,10 @@ namespace WindowsFormsApp1
             tmp.DrawPanel = gr;
             tmp.Redraw();
 
-            FiguresBackBuffer.Pop();
-            bool buf = tmp.EndOfCurrentFigure;
-            tmp.EndOfCurrentFigure = true;
+
+
             FiguresBackBuffer.Push(tmp);
-            tmp.EndOfCurrentFigure = buf;
+            
 
 
             UndoButton.Enabled = true;
@@ -359,13 +358,11 @@ namespace WindowsFormsApp1
 
             
             Figure Last = FiguresBackBuffer.ElementAt(0);
+
+            Last.EndOfCurrentFigure = true;
             FiguresFrontBuffer.Push(Last);
-            if (Last.OnePointBack())
-            {
-                            
-            }
-            else
-                FiguresBackBuffer.Pop();
+            FiguresBackBuffer.Pop();
+            
 
             RedoButton.Enabled = true;
 
@@ -380,10 +377,11 @@ namespace WindowsFormsApp1
             if (FiguresBackBuffer.Count <= 0)
                 UndoButton.Enabled = false;
 
-           
+            
+
             IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);
             CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
-            Last.EndOfCurrentFigure = true;
+            
         }
 
         private void PreDrawTimer_Tick(object sender, EventArgs e)
