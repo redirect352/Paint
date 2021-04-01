@@ -10,9 +10,10 @@ namespace WindowsFormsApp1
 
 
 
-
+    [Serializable]
     public abstract class Figure : ICloneable
     {
+        
         public Graphics DrawPanel;
         protected Point startPoint;
         protected Point endPoint = new Point(-1, -1);
@@ -42,6 +43,7 @@ namespace WindowsFormsApp1
 
         }
 
+        public virtual bool OnePointBack() { return false; }
         public virtual void Redraw()
         { }
 

@@ -8,7 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
-using System.Runtime;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace WindowsFormsApp1
 {
@@ -149,8 +150,26 @@ namespace WindowsFormsApp1
 
                 CurrentFigure.EndPoint = new Point(e.X, e.Y);
 
-                FiguresBackBuffer.Push(CurrentFigure);
-                UndoButton.Enabled = true;
+                if (FiguresBackBuffer.Count < 1)
+                {
+                    FiguresBackBuffer.Push(CurrentFigure);
+                    UndoButton.Enabled = true;
+                }
+                else
+                {
+                    if (FiguresBackBuffer.LastEnd())
+                    {
+                        FiguresBackBuffer.Push(CurrentFigure);
+                    }
+                    else
+                    {
+                        FiguresBackBuffer.Pop();
+                        FiguresBackBuffer.Push(CurrentFigure);
+                    }
+
+                }
+
+
 
 
                 CurrentFigure.StartPoint = new Point(-2,-2);
@@ -173,7 +192,10 @@ namespace WindowsFormsApp1
             gr.Clear(pictureBox1.BackColor);
             pictureBox1.Image = MainPicture;
             FiguresBackBuffer = new UndoStack();
+            FiguresFrontBuffer = new UndoStack();
             UndoButton.Enabled = false;
+            RedoButton.Enabled = false;
+
 
             IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);
             CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
@@ -194,12 +216,31 @@ namespace WindowsFormsApp1
                 numericUpDown1.Visible = true;
                 TopsLabel.Visible = true;
             }
+            if (FiguresBackBuffer.Count>0)
+                FiguresBackBuffer.ElementAt(0).EndOfCurrentFigure = true;
 
         }
 
         private void PenWidthBar_Scroll(object sender, EventArgs e)
         {
+
+            
+            CurrentFigure.DrPen.Width = PenWidthBar.Value;
             pen.Width = PenWidthBar.Value;
+            if (FiguresBackBuffer.Count > 1)
+            {
+                Figure tmp = FiguresBackBuffer.Pop();
+                if (!tmp.EndOfCurrentFigure)
+                {
+                    tmp.DrPen.Width = PenWidthBar.Value;            
+                }
+                FiguresBackBuffer.Push(tmp);
+                gr = Graphics.FromImage(MainPicture);
+                gr.Clear(pictureBox1.BackColor);
+                FiguresBackBuffer.DrawStack(gr);
+                pictureBox1.Image = MainPicture;
+            }
+
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
@@ -243,8 +284,19 @@ namespace WindowsFormsApp1
             tmp.DrawPanel = gr;
             tmp.Redraw();
 
+            FiguresBackBuffer.Pop();
+            bool buf = tmp.EndOfCurrentFigure;
+            tmp.EndOfCurrentFigure = true;
             FiguresBackBuffer.Push(tmp);
+            tmp.EndOfCurrentFigure = buf;
+
+
             UndoButton.Enabled = true;
+           
+
+
+
+            
 
             pictureBox1.Image = MainPicture;
             gr.Dispose();
@@ -253,8 +305,6 @@ namespace WindowsFormsApp1
                 RedoButton.Enabled = false;
             }
 
-            CurrentFigure = tmp.Clone();
-            CurrentFigure.StartPoint = new Point(-1, -1);
 
         }
 
@@ -274,6 +324,31 @@ namespace WindowsFormsApp1
             }
         }
 
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            FileStream F = File.Open("D:/pic.dat", FileMode.Create);
+            try
+            {
+                if (F!= null)
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    for (int i =0; i < FiguresBackBuffer.Count; i++)
+                    {
+                        Figure Tmp = FiguresBackBuffer.ElementAt(i);
+
+                        //formatter.Serialize(F, FiguresBackBuffer.ElementAt(i));
+
+
+                    }
+
+                }          
+            }
+            finally
+            {
+                F.Close();
+            }
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             int N = FiguresBackBuffer.Count;
@@ -282,31 +357,33 @@ namespace WindowsFormsApp1
             if (FiguresFrontBuffer == null)
                 FiguresFrontBuffer = new UndoStack();
 
-            FiguresFrontBuffer.Push(FiguresBackBuffer.Pop());
+            
+            Figure Last = FiguresBackBuffer.ElementAt(0);
+            FiguresFrontBuffer.Push(Last);
+            if (Last.OnePointBack())
+            {
+                            
+            }
+            else
+                FiguresBackBuffer.Pop();
+
             RedoButton.Enabled = true;
 
             gr = Graphics.FromImage(MainPicture);     
             gr.Clear(pictureBox1.BackColor);
-            Figure tmp;
-            Point buf;
 
-            for (int i = FiguresBackBuffer.Count -1; i >=0 ; i--)
-            {
-                tmp = FiguresBackBuffer.ElementAt(i);
-                tmp.DrawPanel = gr;
-                tmp.Redraw();
-                
-            }
+            FiguresBackBuffer.DrawStack(gr);
+
             
             pictureBox1.Image = MainPicture;
 
             if (FiguresBackBuffer.Count <= 0)
                 UndoButton.Enabled = false;
-            else
-            {
-                CurrentFigure = FiguresBackBuffer.ElementAt(0).Clone();
-                CurrentFigure.StartPoint = new Point(-1, -1);
-            }
+
+           
+            IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);
+            CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
+            Last.EndOfCurrentFigure = true;
         }
 
         private void PreDrawTimer_Tick(object sender, EventArgs e)

@@ -8,6 +8,7 @@ using System.Drawing;
 namespace WindowsFormsApp1
 {
 
+    [Serializable]
     public class Polygon : Figure
     {
         public Polygon(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
@@ -111,6 +112,19 @@ namespace WindowsFormsApp1
 
             }
 
+        }
+
+        public override bool OnePointBack()
+        {
+            if (n < 3)
+                return false;
+            else
+            {
+                this.EndOfCurrentFigure = false;
+                points.RemoveLast();
+                n--;
+                    return true;
+            }
         }
 
 

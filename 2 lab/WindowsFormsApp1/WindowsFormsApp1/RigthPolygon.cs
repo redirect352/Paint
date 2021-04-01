@@ -8,6 +8,7 @@ using System.Drawing;
 namespace WindowsFormsApp1
 {
 
+    [Serializable]
     public class RigthPolygon : Polygon
     {
 
@@ -18,6 +19,7 @@ namespace WindowsFormsApp1
             RigthPolygon NewF = new RigthPolygon(startPoint.X, startPoint.Y, DrawPanel, (Pen)DrPen.Clone(), FillColor);
             NewF.TopAmount = topAmount;
             NewF.endPoint = new Point(this.endPoint.X, this.endPoint.Y);
+            NewF.EndOfCurrentFigure = this.EndOfCurrentFigure;
             return NewF;
         }
 
@@ -62,8 +64,8 @@ namespace WindowsFormsApp1
             }
             set
             {
-                EndPoint = value;
-
+                endPoint = value;
+                this.Redraw();
             }
 
         }
@@ -75,6 +77,7 @@ namespace WindowsFormsApp1
             {
                 endPoint = value;
                 this.Redraw();
+                EndOfCurrentFigure = true;
             }
         }
 

@@ -7,6 +7,7 @@ using System.Drawing;
 
 namespace WindowsFormsApp1
 {
+    [Serializable]
     public class Rectangle : Figure
     {
 
@@ -17,6 +18,7 @@ namespace WindowsFormsApp1
 
             Rectangle NewF = new Rectangle(startPoint.X, startPoint.Y, DrawPanel, (Pen)DrPen.Clone(), FillColor);
             NewF.endPoint = new Point(this.endPoint.X, this.endPoint.Y);
+            NewF.EndOfCurrentFigure = this.EndOfCurrentFigure;
             return NewF;
 
         }
@@ -28,6 +30,7 @@ namespace WindowsFormsApp1
             {
                 endPoint = value;
                 this.Redraw();
+                EndOfCurrentFigure = true;
             }
         }
 

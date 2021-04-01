@@ -59,6 +59,33 @@ namespace WindowsFormsApp1
 
         }
 
+        public bool LastEnd()
+        {
+            if (LastFig.Count <= 0)
+                return false;
+            bool res;
+            res = LastFig.ElementAt<Figure>(0).EndOfCurrentFigure;
+            return res;
+
+        }
+
+        public bool DrawStack(Graphics gr)
+        {
+            if (this.Count < 1)
+                return false;
+            Figure tmp;
+            for (int i = this.Count - 1; i >= 0; i--)
+            {
+                tmp = this.ElementAt(i);
+                tmp.DrawPanel = gr;
+                tmp.Redraw();
+
+            }
+
+            return true;
+        }
+
+
         public Figure Pop()
         {
             if (n == 0)
