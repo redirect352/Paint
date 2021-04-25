@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace WindowsFormsApp1.FugureInterface
+
+namespace WindowsFormsApp1
 {
     public interface IFiguresCreator
     {

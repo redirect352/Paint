@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using WindowsFormsApp1.FugureInterface;
 
 namespace WindowsFormsApp1
 {
@@ -13,7 +14,7 @@ namespace WindowsFormsApp1
 
         public Rectangle(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
-        public override Figure Clone()
+        public override IFigure Clone()
         {
 
             Rectangle NewF = new Rectangle(startPoint.X, startPoint.Y, DrawPanel, (Pen)DrPen.Clone(), FillColor);
@@ -58,7 +59,7 @@ namespace WindowsFormsApp1
 
     public class RectangleCreator : IFiguresCreator
     {
-        public Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
+        public IFigure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
         {
             return new Rectangle(x0, y0, gr, pen, Fc);
         }

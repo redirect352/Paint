@@ -5,27 +5,53 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using Newtonsoft.Json;
+using WindowsFormsApp1.FugureInterface;
 
 namespace WindowsFormsApp1
 {
 
-
+    
 
     [Serializable]
-    public abstract class Figure : ICloneable
+    public abstract class Figure : IFigure
     {
-        [NonSerialized]
-        public Graphics DrawPanel;
+        
+        protected Graphics drawPanel;
         protected Point startPoint;
         protected Point endPoint = new Point(-1, -1);
 
-        
-        protected Pen drPen = null;
-        public Color FillColor;
-        public bool EndOfCurrentFigure = false;
 
-        private float penWidth = -1;
-        private Color penColor;
+        protected Pen drPen = null;
+        
+        protected bool endOfCurrentFigure = false;
+
+        protected float penWidth = -1;
+        protected Color penColor;
+
+
+        public Color FillColor { get;set;}
+
+        [JsonIgnore]
+        public Graphics DrawPanel {
+            get
+            {
+                return drawPanel;
+            }
+            set
+            {
+                drawPanel = value;
+            }
+        }
+
+        public bool EndOfCurrentFigure
+        {
+            get {
+                return endOfCurrentFigure;
+            }
+            set{
+                endOfCurrentFigure = value;
+            }
+        }
 
         public float PenWidth {
             get {
@@ -85,14 +111,9 @@ namespace WindowsFormsApp1
             DrPen = pen;
             FillColor = Fc;
         }
+  
 
-        object ICloneable.Clone()
-        {
-            return Clone();
-            
-        }
-
-        public virtual Figure Clone()
+        public virtual IFigure Clone()
         {
             return null;
 

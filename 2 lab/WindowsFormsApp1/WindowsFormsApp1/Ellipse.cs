@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
-
+using WindowsFormsApp1.FugureInterface;
 namespace WindowsFormsApp1
 {
     [Serializable]
@@ -13,7 +13,7 @@ namespace WindowsFormsApp1
 
         public Ellipse(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
-        public override Figure Clone()
+        public override IFigure Clone()
         {
 
             Ellipse NewF = new Ellipse(startPoint.X, startPoint.Y, DrawPanel, (Pen)DrPen.Clone(), FillColor);
@@ -41,7 +41,7 @@ namespace WindowsFormsApp1
                 return;
             var brush = new SolidBrush(FillColor);
             DrawPanel.DrawEllipse(DrPen, Math.Min(startPoint.X, endPoint.X) , Math.Min(startPoint.Y, endPoint.Y), Math.Abs(endPoint.X - startPoint.X), Math.Abs(endPoint.Y - startPoint.Y));
-
+            
             DrawPanel.FillEllipse(brush, Math.Min(startPoint.X, endPoint.X) , Math.Min(startPoint.Y, endPoint.Y), Math.Abs(endPoint.X - startPoint.X), Math.Abs(endPoint.Y - startPoint.Y));
             brush.Dispose();
 
@@ -52,7 +52,7 @@ namespace WindowsFormsApp1
 
     public class EllipseCreator : IFiguresCreator
     {
-        public Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
+        public IFigure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
         {
             return new Ellipse(x0, y0, gr, pen, Fc);
         }

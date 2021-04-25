@@ -8,22 +8,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Newtonsoft.Json;
-
+using System.Runtime;
+using WindowsFormsApp1.FugureInterface;
 
 namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        LinkedList<Type> UsedTypes = new LinkedList<Type>();
+        //LinkedList<Type> UsedTypes = new LinkedList<Type>();
         LinkedList<IFiguresCreator> Creators = new LinkedList<IFiguresCreator>();
 
         UndoStack FiguresBackBuffer = new UndoStack(), FiguresFrontBuffer = null;
         Graphics gr;
         Pen pen;
-        Figure CurrentFigure = null;
+        IFigure CurrentFigure = null;
         Bitmap MainPicture= new Bitmap(1000,1000), TemporaryImage = new Bitmap(1000, 1000);
         int FpsCounter = 0;
         
@@ -41,10 +41,10 @@ namespace WindowsFormsApp1
             }
             
             
-
+            
             
             gr = Graphics.FromImage(MainPicture);
-
+            
 
             gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             pen = new Pen(Color.Black);
@@ -62,15 +62,17 @@ namespace WindowsFormsApp1
             bool FiguresExist = false;
             try
             {
+               
                 Assembly assembly = Assembly.GetExecutingAssembly();
-                Type[] types = assembly.GetTypes();
+                Type[] types = assembly.GetExportedTypes();
                 int k = 0;
                 for (int i = 0; i < types.Length; i++)
                 {
                     if (types[i].GetInterface(typeof(IFiguresCreator).FullName) != null)
                     {
+                        
                         Creators.AddLast((IFiguresCreator)Activator.CreateInstance(types[i]));
-
+                      
 
                         comboBox1.Items.Add(Creators.ElementAt<IFiguresCreator>(k).Name);
                         FiguresExist = true;
@@ -83,6 +85,74 @@ namespace WindowsFormsApp1
                 FiguresExist = false;
             }
             return FiguresExist;
+        }
+
+        private void LoadDll_Click_(object sender, EventArgs e)
+        {
+            if (openDllDialog.ShowDialog() == DialogResult.OK)
+            {
+
+                AppDomain ad = AppDomain.CurrentDomain;
+                ad.AssemblyResolve += MyHandler;
+                var plug = typeof(IFiguresCreator);
+              //  byte[] bytes = File.ReadAllBytes(openDllDialog.FileName);
+                Assembly assembly = ad.Load(openDllDialog.FileName);
+                Type[] types = assembly.GetTypes();
+              
+                bool IFiguresExist = false;
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if (plug.IsAssignableFrom(types[i]))
+                    {
+
+                        try {
+                             IFiguresCreator Tmp = (IFiguresCreator)Activator.CreateInstance(types[i]);
+
+                            Creators.AddLast(((IFiguresCreator)Activator.CreateInstance(types[i])));
+                            comboBox1.Items.Add(Creators.Last<IFiguresCreator>().Name);
+                        }
+                        catch (Exception ex)
+                        { MessageBox.Show(ex.Message); }
+                        
+                        IFiguresExist = true;
+
+
+                    }
+
+                }
+
+                if (!IFiguresExist)
+                {
+                    MessageBox.Show("Подходящих ресурсов не найдено.");
+
+                }
+            }
+
+        }
+
+        static Assembly MyHandler(object source, ResolveEventArgs e)
+        {
+
+            var path = Path.GetFullPath(e.Name);
+            Assembly[] asbm = AppDomain.CurrentDomain.GetAssemblies();
+            var asm = Assembly.ReflectionOnlyLoadFrom(path);
+            var names = asm.GetReferencedAssemblies();
+            
+            foreach (Assembly assm  in asbm)
+            {
+                for (int i =0; i < names.Length; i++)
+                {
+                    
+                    if (assm.FullName == names[i].FullName)
+                    {
+                     //   MessageBox.Show(names[i].ToString());
+                    }
+                }
+
+
+            }
+            
+            return Assembly.LoadFrom(path);
         }
 
 
@@ -232,7 +302,7 @@ namespace WindowsFormsApp1
             pen.Width = PenWidthBar.Value;
             if (FiguresBackBuffer.Count >= 1)
             {
-                Figure tmp = FiguresBackBuffer.Pop();
+                IFigure tmp = FiguresBackBuffer.Pop();
                 if (!tmp.EndOfCurrentFigure)
                 {
                     tmp.DrPen.Width = PenWidthBar.Value;            
@@ -280,7 +350,7 @@ namespace WindowsFormsApp1
 
         private void RedoButton_Click(object sender, EventArgs e)
         {
-            Figure tmp = FiguresFrontBuffer.Pop();
+            IFigure tmp = FiguresFrontBuffer.Pop();
             gr = Graphics.FromImage(MainPicture);
             tmp.DrawPanel = gr;
             tmp.Redraw();
@@ -331,7 +401,7 @@ namespace WindowsFormsApp1
                 settings.TypeNameHandling = TypeNameHandling.All;
                 for (int i = FiguresBackBuffer.Count -1; i >=0 ; i--)
                 {
-                    Figure Tmp = FiguresBackBuffer.ElementAt(i); 
+                    IFigure Tmp = FiguresBackBuffer.ElementAt(i); 
                     try
                     {
                         Tmp.EndOfCurrentFigure = true;
@@ -377,25 +447,25 @@ namespace WindowsFormsApp1
                 StreamReader st = new StreamReader(F);
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 settings.TypeNameHandling = TypeNameHandling.All;
-                Figure Tmp;
+                IFigure Tmp;
                 string json =  st.ReadLine();
+                int i = 0;
                 while (json != null)
                 {
                     try
                     {
-                        Tmp = (Figure)JsonConvert.DeserializeObject(json, settings);
+                        Tmp = (IFigure)JsonConvert.DeserializeObject(json, settings);
                         FiguresBackBuffer.Push(Tmp);
                     }
                     catch (Exception ex)
                     {
-                        st.Close();
-                        F.Close();
-                        MessageBox.Show("Wrong File Format!");
-                        ClearButton_Click(null, null);
-                        return;
+                        string type = json.Substring(json.IndexOf(':'),json.IndexOf(','));
+                        MessageBox.Show("Error on line " + i.ToString()+ ". Cannot read this Figure:" + type);
+
                     }
 
-                        json = st.ReadLine();
+                    i++;
+                    json = st.ReadLine();
                 }
 
                 
@@ -424,8 +494,8 @@ namespace WindowsFormsApp1
             if (FiguresFrontBuffer == null)
                 FiguresFrontBuffer = new UndoStack();
 
-            
-            Figure Last = FiguresBackBuffer.ElementAt(0);
+
+            IFigure Last = FiguresBackBuffer.ElementAt(0);
 
             Last.EndOfCurrentFigure = true;
             FiguresFrontBuffer.Push(Last);

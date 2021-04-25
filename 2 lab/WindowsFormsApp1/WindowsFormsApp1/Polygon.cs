@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
+using WindowsFormsApp1.FugureInterface;
+
 namespace WindowsFormsApp1
 {
 
@@ -15,7 +17,7 @@ namespace WindowsFormsApp1
         public LinkedList<Point> points = new LinkedList<Point>();
         protected int n = 0;
 
-        public override Figure Clone()
+        public override IFigure Clone()
         {
             Polygon NewF = new Polygon(startPoint.X, startPoint.Y, null, (Pen)DrPen.Clone(), FillColor);
             NewF.EndOfCurrentFigure = this.EndOfCurrentFigure;
@@ -135,7 +137,7 @@ namespace WindowsFormsApp1
 
     public class PolygonCreator : IFiguresCreator
     {
-        public Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
+        public IFigure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
         {
             return new Polygon(x0, y0, gr, pen, Fc);
         }

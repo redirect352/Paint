@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using WindowsFormsApp1.FugureInterface;
 
 namespace WindowsFormsApp1
 {
@@ -12,7 +13,7 @@ namespace WindowsFormsApp1
     {
         public StraigthLine(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
 
-        public override Figure Clone()
+        public override IFigure Clone()
         {
 
             StraigthLine NewF = new StraigthLine(startPoint.X, startPoint.Y, DrawPanel, (Pen)DrPen.Clone(), FillColor);
@@ -43,7 +44,7 @@ namespace WindowsFormsApp1
 
     public class StraigthLineCreator : IFiguresCreator
     {
-        public Figure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
+        public IFigure Create(int x0, int y0, Graphics gr, Pen pen, Color Fc)
         {
             return new StraigthLine(x0, y0, gr, pen, Fc);
         }

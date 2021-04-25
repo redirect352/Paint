@@ -50,6 +50,8 @@
             this.SaveButton = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.LoadButton = new System.Windows.Forms.Button();
+            this.LoadDll = new System.Windows.Forms.Button();
+            this.openDllDialog = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PenWidthBar)).BeginInit();
@@ -247,7 +249,6 @@
             // openFileDialog1
             // 
             this.openFileDialog1.CheckFileExists = false;
-            this.openFileDialog1.FileName = "openFileDialog1";
             // 
             // LoadButton
             // 
@@ -260,11 +261,27 @@
             this.LoadButton.UseVisualStyleBackColor = true;
             this.LoadButton.Click += new System.EventHandler(this.LoadButton_Click);
             // 
+            // LoadDll
+            // 
+            this.LoadDll.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.LoadDll.Location = new System.Drawing.Point(291, 509);
+            this.LoadDll.Name = "LoadDll";
+            this.LoadDll.Size = new System.Drawing.Size(106, 23);
+            this.LoadDll.TabIndex = 18;
+            this.LoadDll.Text = "Load Figure";
+            this.LoadDll.UseVisualStyleBackColor = true;
+            this.LoadDll.Click += new System.EventHandler(this.LoadDll_Click_);
+            // 
+            // openDllDialog
+            // 
+            this.openDllDialog.Filter = "Расширение .dll | *.dll";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1026, 544);
+            this.Controls.Add(this.LoadDll);
             this.Controls.Add(this.LoadButton);
             this.Controls.Add(this.SaveButton);
             this.Controls.Add(this.RedoButton);
@@ -282,6 +299,7 @@
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.ClearButton);
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Form1";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
@@ -315,6 +333,8 @@
         private System.Windows.Forms.Button SaveButton;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Button LoadButton;
+        private System.Windows.Forms.Button LoadDll;
+        private System.Windows.Forms.OpenFileDialog openDllDialog;
     }
 }
 
