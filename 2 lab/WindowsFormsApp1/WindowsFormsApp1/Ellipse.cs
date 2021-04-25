@@ -29,6 +29,7 @@ namespace WindowsFormsApp1
             set
             {
                 endPoint = value;
+                
                 this.Redraw();
                 EndOfCurrentFigure = true;
             }
@@ -36,7 +37,8 @@ namespace WindowsFormsApp1
 
         public override void Redraw()
         {
-         
+            if (DrawPanel == null)
+                return;
             var brush = new SolidBrush(FillColor);
             DrawPanel.DrawEllipse(DrPen, Math.Min(startPoint.X, endPoint.X) , Math.Min(startPoint.Y, endPoint.Y), Math.Abs(endPoint.X - startPoint.X), Math.Abs(endPoint.Y - startPoint.Y));
 

@@ -65,7 +65,8 @@ namespace WindowsFormsApp1
             set
             {
                 endPoint = value;
-                this.Redraw();
+                if (DrawPanel != null)
+                    this.Redraw();
             }
 
         }
@@ -76,7 +77,8 @@ namespace WindowsFormsApp1
             set
             {
                 endPoint = value;
-                this.Redraw();
+                if (DrawPanel != null)
+                    this.Redraw();
                 EndOfCurrentFigure = true;
             }
         }

@@ -28,7 +28,8 @@ namespace WindowsFormsApp1
             set
             {
                 endPoint = value;
-                DrawPanel.DrawLine(DrPen, startPoint, endPoint);
+                if (DrawPanel!=null)
+                    DrawPanel.DrawLine(DrPen, startPoint, endPoint);
                 EndOfCurrentFigure = true;
             }
         }

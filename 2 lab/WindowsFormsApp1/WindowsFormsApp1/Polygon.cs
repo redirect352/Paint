@@ -12,7 +12,7 @@ namespace WindowsFormsApp1
     public class Polygon : Figure
     {
         public Polygon(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
-        private LinkedList<Point> points = new LinkedList<Point>();
+        public LinkedList<Point> points = new LinkedList<Point>();
         protected int n = 0;
 
         public override Figure Clone()
@@ -58,7 +58,8 @@ namespace WindowsFormsApp1
             get => base.PreDrawEndPoint;
             set
             {
-                DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), value);
+                if (DrawPanel != null)
+                    DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), value);
             }
         }
 
@@ -71,19 +72,20 @@ namespace WindowsFormsApp1
 
 
                 endPoint = value;
-                points.AddLast(value);
+                if(value.X > 0)
+                    points.AddLast(value);
                 if (!this.EndOfCurrentFigure)
                 {
 
                     
-                    if (n > 0 )
+                    if (n > 0 && (DrawPanel != null) )
                     {
                         DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), points.ElementAt<Point>(n));
                     }
                     n++;
 
                 }
-                else
+                else if(DrawPanel != null)
                     this.Redraw();
                                                                              
             }

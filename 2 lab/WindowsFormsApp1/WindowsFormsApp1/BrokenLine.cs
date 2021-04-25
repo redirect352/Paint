@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using Newtonsoft.Json;
+
 
 namespace WindowsFormsApp1
 {
@@ -12,7 +14,7 @@ namespace WindowsFormsApp1
     public class BrokenLine : Figure
     {
         public BrokenLine(int x0, int y0, Graphics gr, Pen pen, Color Fc) : base(x0, y0, gr, pen, Fc) { }
-        private LinkedList<Point> points = new LinkedList<Point>();
+        public LinkedList<Point> points = new LinkedList<Point>();
         private int n = 0;
 
 
@@ -37,7 +39,7 @@ namespace WindowsFormsApp1
 
             set
             {
-                if (this.EndOfCurrentFigure)
+                if (startPoint.X == -2 &&  this.EndOfCurrentFigure)
                 {
                     points = new LinkedList<Point>();
                     n = 0;
@@ -59,7 +61,7 @@ namespace WindowsFormsApp1
             get => base.PreDrawEndPoint;
             set
             {
-                if (n>=1)
+                if (n>=1 &&  (DrawPanel != null))
                     DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), value);
             }
         }
@@ -85,8 +87,10 @@ namespace WindowsFormsApp1
             }
             set
             {
+                if (value.X < 0 || value.Y < 0)
+                    return;
                 points.AddLast(value);
-                if (n > 0)
+                if (n > 0 &&  (DrawPanel != null))
                 {
                     DrawPanel.DrawLine(DrPen, points.ElementAt<Point>(n - 1), points.ElementAt<Point>(n));
 
@@ -111,8 +115,6 @@ namespace WindowsFormsApp1
             }
 
         }
-
-
 
     }
 

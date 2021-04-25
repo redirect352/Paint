@@ -4,12 +4,14 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
+
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using Newtonsoft.Json;
+
 
 namespace WindowsFormsApp1
 {
@@ -21,7 +23,7 @@ namespace WindowsFormsApp1
         UndoStack FiguresBackBuffer = new UndoStack(), FiguresFrontBuffer = null;
         Graphics gr;
         Pen pen;
-        Figure CurrentFigure;
+        Figure CurrentFigure = null;
         Bitmap MainPicture= new Bitmap(1000,1000), TemporaryImage = new Bitmap(1000, 1000);
         int FpsCounter = 0;
         
@@ -40,7 +42,7 @@ namespace WindowsFormsApp1
             
             
 
-            comboBox1.SelectedIndex = 0;
+            
             gr = Graphics.FromImage(MainPicture);
 
 
@@ -49,9 +51,7 @@ namespace WindowsFormsApp1
             pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
             pen.Width = PenWidthBar.Value;
 
-            IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);   
-            CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
-
+            comboBox1.SelectedIndex = 0;
             pictureBox1.Image = MainPicture;
 
 
@@ -88,8 +88,11 @@ namespace WindowsFormsApp1
 
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
-
-
+            if (CurrentFigure == null)
+            {
+                IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);
+                CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
+            }
             CurrentFigure.StartPoint = new Point(e.X, e.Y);
             PreDrawTimer.Enabled = true;
 
@@ -102,6 +105,8 @@ namespace WindowsFormsApp1
 
         private void panel1_MouseMove(object sender, MouseEventArgs e)
         {
+            if (CurrentFigure == null)
+                return;
             if (CurrentFigure.StartPoint.X < 0)
                 return;
 
@@ -121,9 +126,6 @@ namespace WindowsFormsApp1
                 CurrentFigure.PreDrawEndPoint = e.Location;
                 gr.Dispose();
                 PreDrawTimer.Enabled = true;
-               
-               
-                
             }
 
 
@@ -131,7 +133,8 @@ namespace WindowsFormsApp1
 
         private void panel1_MouseUp(object sender, MouseEventArgs e)
         {
-
+            if (CurrentFigure == null)
+                return;
             timer1.Enabled = false;
             PreDrawTimer.Enabled = false;
 
@@ -196,9 +199,9 @@ namespace WindowsFormsApp1
             UndoButton.Enabled = false;
             RedoButton.Enabled = false;
 
-
-            IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);
-            CurrentFigure = CurrentCreator.Create(-1, -1, gr, pen, FillColorPanel.BackColor);
+            CurrentFigure = null;
+            //IFiguresCreator CurrentCreator = Creators.ElementAt<IFiguresCreator>(comboBox1.SelectedIndex);
+            //CurrentFigure = CurrentCreator.Create(-1, -1, null, pen, FillColorPanel.BackColor);
 
         }
 
@@ -224,8 +227,8 @@ namespace WindowsFormsApp1
         private void PenWidthBar_Scroll(object sender, EventArgs e)
         {
 
-            
-            CurrentFigure.DrPen.Width = PenWidthBar.Value;
+            if (CurrentFigure!=null)
+                 CurrentFigure.DrPen.Width = PenWidthBar.Value;
             pen.Width = PenWidthBar.Value;
             if (FiguresBackBuffer.Count >= 1)
             {
@@ -263,8 +266,6 @@ namespace WindowsFormsApp1
             {
                 FillColorPanel.BackColor = colorDialog1.Color;
                 CurrentFigure.FillColor = colorDialog1.Color;
-
-
             }
         }
 
@@ -283,28 +284,14 @@ namespace WindowsFormsApp1
             gr = Graphics.FromImage(MainPicture);
             tmp.DrawPanel = gr;
             tmp.Redraw();
-
-
-
             FiguresBackBuffer.Push(tmp);
-            
-
-
             UndoButton.Enabled = true;
-           
-
-
-
-            
-
             pictureBox1.Image = MainPicture;
             gr.Dispose();
             if (FiguresFrontBuffer.Count == 0)
             {
                 RedoButton.Enabled = false;
             }
-
-
         }
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
@@ -325,28 +312,97 @@ namespace WindowsFormsApp1
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            FileStream F = File.Open("D:/pic.dat", FileMode.Create);
+            CurrentFigure = null;
+            openFileDialog1.CheckFileExists = false;
+            if (openFileDialog1.ShowDialog() != DialogResult.OK)
+                return;
+
+            string path = openFileDialog1.FileName;
+            FileStream F = File.Open(path, FileMode.Create);
+            if (F == null)
+            {
+                MessageBox.Show("Cannot create output file!");
+                return;
+            }
             try
             {
-                if (F!= null)
+                StreamWriter st = new StreamWriter(F);
+                JsonSerializerSettings settings = new JsonSerializerSettings();
+                settings.TypeNameHandling = TypeNameHandling.All;
+                for (int i = FiguresBackBuffer.Count -1; i >=0 ; i--)
                 {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    for (int i =0; i < FiguresBackBuffer.Count; i++)
+                    Figure Tmp = FiguresBackBuffer.ElementAt(i); 
+                    try
                     {
-                        Figure Tmp = FiguresBackBuffer.ElementAt(i);
-
-                        //formatter.Serialize(F, FiguresBackBuffer.ElementAt(i));
-
-
+                        Tmp.EndOfCurrentFigure = true;
+                        string json = JsonConvert.SerializeObject(Tmp,Tmp.GetType(), settings);
+                        st.WriteLine(json);
                     }
+                    catch (Exception ex) {
+                        MessageBox.Show(ex.Message);
+                        break;
+                    }
+                }
+                st.Close();
+                    
+                         
+            }
+            finally
+            {
+                
+                F.Close();
+            }
+        }
 
-                }          
+
+
+        private void LoadButton_Click(object sender, EventArgs e)
+        {
+            
+            openFileDialog1.CheckFileExists = true;
+            if (openFileDialog1.ShowDialog() != DialogResult.OK)
+                return;
+
+            string path = openFileDialog1.FileName;
+            FileStream F = File.Open(path, FileMode.Open);
+            if (F == null)
+            {
+                MessageBox.Show("Cannot open this file!");
+                return;
+            }
+            try
+            {
+                ClearButton_Click(null,null);
+
+                StreamReader st = new StreamReader(F);
+                JsonSerializerSettings settings = new JsonSerializerSettings();
+                settings.TypeNameHandling = TypeNameHandling.All;
+                Figure Tmp;
+                string json =  st.ReadLine();
+                while (json != null)
+                {
+                    Tmp = (Figure)JsonConvert.DeserializeObject(json,settings);
+                    FiguresBackBuffer.Push(Tmp);
+                    json = st.ReadLine();
+                }
+
+                
+                gr = Graphics.FromImage(MainPicture);
+                gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                FiguresBackBuffer.DrawStack(gr);
+                pictureBox1.Image = MainPicture;
+                st.Close();
+                UndoButton.Enabled = true;
             }
             finally
             {
                 F.Close();
             }
+
+            
         }
+
+
 
         private void button1_Click(object sender, EventArgs e)
         {
