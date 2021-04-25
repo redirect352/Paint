@@ -381,9 +381,21 @@ namespace WindowsFormsApp1
                 string json =  st.ReadLine();
                 while (json != null)
                 {
-                    Tmp = (Figure)JsonConvert.DeserializeObject(json,settings);
-                    FiguresBackBuffer.Push(Tmp);
-                    json = st.ReadLine();
+                    try
+                    {
+                        Tmp = (Figure)JsonConvert.DeserializeObject(json, settings);
+                        FiguresBackBuffer.Push(Tmp);
+                    }
+                    catch (Exception ex)
+                    {
+                        st.Close();
+                        F.Close();
+                        MessageBox.Show("Wrong File Format!");
+                        ClearButton_Click(null, null);
+                        return;
+                    }
+
+                        json = st.ReadLine();
                 }
 
                 
