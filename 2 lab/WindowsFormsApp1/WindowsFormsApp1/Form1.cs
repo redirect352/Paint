@@ -95,8 +95,21 @@ namespace WindowsFormsApp1
                 AppDomain ad = AppDomain.CurrentDomain;
                 ad.AssemblyResolve += MyHandler;
                 var plug = typeof(IFiguresCreator);
-              //  byte[] bytes = File.ReadAllBytes(openDllDialog.FileName);
-                Assembly assembly = ad.Load(openDllDialog.FileName);
+                //  byte[] bytes = File.ReadAllBytes(openDllDialog.FileName);
+
+                Assembly assembly;
+                try {
+                     assembly = ad.Load(openDllDialog.FileName);
+
+                }
+                catch 
+                {
+                    MessageBox.Show("Данная сборка уже загружена");
+                    return;
+                }
+               
+
+                
                 Type[] types = assembly.GetTypes();
               
                 bool IFiguresExist = false;
@@ -136,22 +149,16 @@ namespace WindowsFormsApp1
             var path = Path.GetFullPath(e.Name);
             Assembly[] asbm = AppDomain.CurrentDomain.GetAssemblies();
             var asm = Assembly.ReflectionOnlyLoadFrom(path);
-            var names = asm.GetReferencedAssemblies();
             
+            string name = asm.FullName;
             foreach (Assembly assm  in asbm)
-            {
-                for (int i =0; i < names.Length; i++)
+            {                 
+                if (assm.FullName == name)
                 {
                     
-                    if (assm.FullName == names[i].FullName)
-                    {
-                     //   MessageBox.Show(names[i].ToString());
-                    }
+                    return null;
                 }
-
-
             }
-            
             return Assembly.LoadFrom(path);
         }
 
