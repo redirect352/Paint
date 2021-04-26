@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using BasedInterfaces;
 
-using WindowsFormsApp1.FugureInterface;
 
 namespace WindowsFormsApp1
 {

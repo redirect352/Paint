@@ -4,14 +4,13 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
 using System.IO;
 using Newtonsoft.Json;
 using System.Runtime;
-using WindowsFormsApp1.FugureInterface;
+using BasedInterfaces;
 
 namespace WindowsFormsApp1
 {
@@ -115,9 +114,11 @@ namespace WindowsFormsApp1
                 bool IFiguresExist = false;
                 for (int i = 0; i < types.Length; i++)
                 {
-                    if (plug.IsAssignableFrom(types[i]))
-                    {
 
+                    ;
+                    if (types[i].GetInterface(plug.FullName) != null)
+                    {
+                        
                         try {
                              IFiguresCreator Tmp = (IFiguresCreator)Activator.CreateInstance(types[i]);
 
