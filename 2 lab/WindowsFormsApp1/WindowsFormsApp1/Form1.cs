@@ -58,6 +58,7 @@ namespace WindowsFormsApp1
 
         private bool LoadModules()
         {
+            Type mainInterface = typeof(IFiguresCreator);
             bool FiguresExist = false;
             try
             {
@@ -67,7 +68,8 @@ namespace WindowsFormsApp1
                 int k = 0;
                 for (int i = 0; i < types.Length; i++)
                 {
-                    if (types[i].GetInterface(typeof(IFiguresCreator).FullName) != null)
+
+                    if (mainInterface.IsAssignableFrom(types[i]))
                     {
                         
                         Creators.AddLast((IFiguresCreator)Activator.CreateInstance(types[i]));
@@ -115,8 +117,8 @@ namespace WindowsFormsApp1
                 for (int i = 0; i < types.Length; i++)
                 {
 
-                    ;
-                    if (types[i].GetInterface(plug.FullName) != null)
+                    
+                    if (plug.IsAssignableFrom(types[i]))
                     {
                         
                         try {
