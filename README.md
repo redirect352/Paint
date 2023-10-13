@@ -1,2 +1,3 @@
-# OOP_4sem
-Для рисования линии между двумя точками зажать Shift. Для рисования ровных линий - ctrl
+# Paint
+Press Shift to draw a straigth line between two points. 
+Press Ctrl to draw broken line.
